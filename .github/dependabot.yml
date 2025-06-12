@@ -10,7 +10,7 @@ updates:
       timezone: 'UTC'
     open-pull-requests-limit: 10
     reviewers:
-      - 'antonio' # Replace with your GitHub username
+      - 'antonioc-cl'
     labels:
       - 'dependencies'
       - 'automated'
@@ -57,7 +57,7 @@ updates:
       timezone: 'UTC'
     open-pull-requests-limit: 5
     reviewers:
-      - 'antonio' # Replace with your GitHub username
+      - 'antonioc-cl'
     labels:
       - 'github-actions'
       - 'automated'

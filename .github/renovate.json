@@ -1,0 +1,75 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    ":semanticCommits",
+    ":preserveSemverRanges"
+  ],
+  "labels": ["dependencies", "automated"],
+  "assignees": ["antonioc-cl"],
+  "reviewers": ["antonioc-cl"],
+  "packageRules": [
+    {
+      "description": "Automatically merge minor and patch updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true
+    },
+    {
+      "description": "Group Next.js ecosystem packages",
+      "groupName": "Next.js ecosystem",
+      "matchPackagePatterns": ["^next", "^@next/", "^eslint-config-next"]
+    },
+    {
+      "description": "Group React packages",
+      "groupName": "React",
+      "matchPackagePatterns": ["^react", "^react-dom", "^@types/react"]
+    },
+    {
+      "description": "Group testing packages",
+      "groupName": "Testing",
+      "matchPackagePatterns": [
+        "^@testing-library/",
+        "^vitest",
+        "^@vitest/",
+        "^playwright",
+        "^@playwright/"
+      ]
+    },
+    {
+      "description": "Group linting packages",
+      "groupName": "Linting",
+      "matchPackagePatterns": ["^eslint", "^@typescript-eslint/", "^prettier"]
+    },
+    {
+      "description": "Group Radix UI packages",
+      "groupName": "Radix UI",
+      "matchPackagePatterns": ["^@radix-ui/"]
+    },
+    {
+      "description": "Pin GitHub Actions to hash",
+      "matchManagers": ["github-actions"],
+      "pinDigests": true
+    }
+  ],
+  "schedule": ["after 9am on monday"],
+  "timezone": "UTC",
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "assignees": ["antonioc-cl"]
+  },
+  "prConcurrentLimit": 10,
+  "prCreation": "immediate",
+  "semanticCommits": "enabled",
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "rangeStrategy": "auto",
+  "postUpdateOptions": ["pnpmDedupe"],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 3am on monday"]
+  }
+}

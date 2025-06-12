@@ -1,0 +1,72 @@
+name: Dependency Update
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Update dependencies
+        run: |
+          # Update all dependencies to their latest versions
+          pnpm update --latest
+          
+          # Update pnpm lockfile
+          pnpm install --no-frozen-lockfile
+
+      - name: Run tests
+        run: |
+          pnpm lint
+          pnpm type-check
+          pnpm test:unit
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies to latest versions'
+          title: '⬆️ Update dependencies'
+          body: |
+            ## 🤖 Automated Dependency Update
+            
+            This PR updates all dependencies to their latest versions.
+            
+            ### Checklist
+            - [ ] All tests pass
+            - [ ] No breaking changes identified
+            - [ ] Application builds successfully
+            
+            ### What to check
+            1. Review the lockfile changes
+            2. Check for any breaking changes in major version updates
+            3. Test critical functionality locally
+            
+            ---
+            *This PR was automatically created by the dependency update workflow.*
+          branch: deps/update-all
+          delete-branch: true
+          labels: |
+            dependencies
+            automated

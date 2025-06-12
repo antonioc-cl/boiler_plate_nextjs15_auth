@@ -1,9 +1,9 @@
 # Next.js 15 Production Boilerplate
 
-[![CI](https://github.com/antonio/boiler_plate_nextjs15_auth/actions/workflows/ci.yml/badge.svg)](https://github.com/antonio/boiler_plate_nextjs15_auth/actions/workflows/ci.yml)
-[![Deploy to Vercel](https://github.com/antonio/boiler_plate_nextjs15_auth/actions/workflows/deploy.yml/badge.svg)](https://github.com/antonio/boiler_plate_nextjs15_auth/actions/workflows/deploy.yml)
-[![codecov](https://codecov.io/gh/antonio/boiler_plate_nextjs15_auth/branch/main/graph/badge.svg)](https://codecov.io/gh/antonio/boiler_plate_nextjs15_auth)
-[![Dependency Status](https://img.shields.io/librariesio/github/antonio/boiler_plate_nextjs15_auth)](https://libraries.io/github/antonio/boiler_plate_nextjs15_auth)
+[![CI](https://github.com/antonioc-cl/boiler_plate_nextjs15_auth/actions/workflows/ci.yml/badge.svg)](https://github.com/antonioc-cl/boiler_plate_nextjs15_auth/actions/workflows/ci.yml)
+[![Deploy to Vercel](https://github.com/antonioc-cl/boiler_plate_nextjs15_auth/actions/workflows/deploy.yml/badge.svg)](https://github.com/antonioc-cl/boiler_plate_nextjs15_auth/actions/workflows/deploy.yml)
+[![Security Audit](https://github.com/antonioc-cl/boiler_plate_nextjs15_auth/actions/workflows/security-audit.yml/badge.svg)](https://github.com/antonioc-cl/boiler_plate_nextjs15_auth/actions/workflows/security-audit.yml)
+[![Dependency Update](https://github.com/antonioc-cl/boiler_plate_nextjs15_auth/actions/workflows/dependency-update.yml/badge.svg)](https://github.com/antonioc-cl/boiler_plate_nextjs15_auth/actions/workflows/dependency-update.yml)
 
 A production-ready Next.js 15 boilerplate with TypeScript, authentication structure, and best practices.
 
@@ -129,6 +129,44 @@ See `.env.example` for required environment variables:
 ## VS Code Integration
 
 Recommended extensions are configured in `.vscode/extensions.json`. Settings for auto-formatting and linting are pre-configured.
+
+## Automated Maintenance
+
+This boilerplate includes several GitHub Actions workflows to keep it up-to-date:
+
+### Dependency Management
+- **Dependabot**: Automatically creates PRs for dependency updates (weekly)
+- **Renovate**: Alternative dependency management with more granular control
+- **Auto-merge**: Automatically merges minor and patch updates that pass all tests
+- **Security Audit**: Daily security scans with npm audit, Snyk, and CodeQL
+
+### Maintenance Workflows
+- **Dependency Update** (`dependency-update.yml`): Weekly automated dependency updates with PR creation
+- **Security Audit** (`security-audit.yml`): Daily security vulnerability scanning
+- **Boilerplate Sync** (`boilerplate-sync.yml`): Monitors for framework updates and creates issues
+- **Lighthouse Monitor** (`lighthouse-monitor.yml`): Performance monitoring for web vitals
+
+### Setting Up Automated Updates
+
+1. **Enable Dependabot**: Already configured in `.github/dependabot.yml`
+
+2. **Enable Renovate** (optional, more powerful than Dependabot):
+   - Install the [Renovate GitHub App](https://github.com/apps/renovate)
+   - Configuration is in `.github/renovate.json`
+
+3. **Configure Auto-merge** (optional):
+   - Install a GitHub App like [Mergify](https://mergify.io/) or [Kodiak](https://kodiakhq.com/)
+   - Or use GitHub's built-in auto-merge feature
+
+4. **Set up Snyk** (optional):
+   - Sign up at [snyk.io](https://snyk.io)
+   - Add `SNYK_TOKEN` to your repository secrets
+
+### Maintenance Schedule
+- **Daily**: Security audits
+- **Weekly**: Dependency updates (Monday 9 AM UTC)
+- **Weekly**: Framework update checks (Sunday 6 AM UTC)
+- **Weekly**: Performance monitoring (Wednesday 10 AM UTC)
 
 ## License
 
