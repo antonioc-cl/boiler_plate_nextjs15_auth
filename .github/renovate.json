@@ -1,10 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base",
-    ":semanticCommits",
-    ":preserveSemverRanges"
-  ],
+  "extends": ["config:base", ":semanticCommits", ":preserveSemverRanges"],
   "labels": ["dependencies", "automated"],
   "assignees": ["antonioc-cl"],
   "reviewers": ["antonioc-cl"],

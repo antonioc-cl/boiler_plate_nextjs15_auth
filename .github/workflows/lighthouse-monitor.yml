@@ -53,17 +53,17 @@ jobs:
             const results = require('./lighthouse-results.json');
             const comment = `
             ## 🏠 Lighthouse Performance Report
-            
+
             | Metric | Score |
             |--------|-------|
             | Performance | ${results.performance} |
             | Accessibility | ${results.accessibility} |
             | Best Practices | ${results.bestPractices} |
             | SEO | ${results.seo} |
-            
+
             [View full report](${results.reportUrl})
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

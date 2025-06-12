@@ -135,12 +135,14 @@ Recommended extensions are configured in `.vscode/extensions.json`. Settings for
 This boilerplate includes several GitHub Actions workflows to keep it up-to-date:
 
 ### Dependency Management
+
 - **Dependabot**: Automatically creates PRs for dependency updates (weekly)
 - **Renovate**: Alternative dependency management with more granular control
 - **Auto-merge**: Automatically merges minor and patch updates that pass all tests
 - **Security Audit**: Daily security scans with npm audit, Snyk, and CodeQL
 
 ### Maintenance Workflows
+
 - **Dependency Update** (`dependency-update.yml`): Weekly automated dependency updates with PR creation
 - **Security Audit** (`security-audit.yml`): Daily security vulnerability scanning
 - **Boilerplate Sync** (`boilerplate-sync.yml`): Monitors for framework updates and creates issues
@@ -151,10 +153,12 @@ This boilerplate includes several GitHub Actions workflows to keep it up-to-date
 1. **Enable Dependabot**: Already configured in `.github/dependabot.yml`
 
 2. **Enable Renovate** (optional, more powerful than Dependabot):
+
    - Install the [Renovate GitHub App](https://github.com/apps/renovate)
    - Configuration is in `.github/renovate.json`
 
 3. **Configure Auto-merge** (optional):
+
    - Install a GitHub App like [Mergify](https://mergify.io/) or [Kodiak](https://kodiakhq.com/)
    - Or use GitHub's built-in auto-merge feature
 
@@ -163,6 +167,7 @@ This boilerplate includes several GitHub Actions workflows to keep it up-to-date
    - Add `SNYK_TOKEN` to your repository secrets
 
 ### Maintenance Schedule
+
 - **Daily**: Security audits
 - **Weekly**: Dependency updates (Monday 9 AM UTC)
 - **Weekly**: Framework update checks (Sunday 6 AM UTC)

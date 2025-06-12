@@ -48,7 +48,7 @@ jobs:
           echo "# Dependency Update Report" > update-report.md
           echo "Generated on $(date)" >> update-report.md
           echo "" >> update-report.md
-          
+
           # Check major dependencies
           for pkg in "next" "react" "react-dom" "typescript" "lucia" "drizzle-orm" "@playwright/test" "vitest"; do
             CURRENT=$(node -p "require('./package.json').dependencies['$pkg'] || require('./package.json').devDependencies['$pkg'] || 'Not installed'")
@@ -63,7 +63,7 @@ jobs:
           script: |
             const fs = require('fs');
             const report = fs.readFileSync('update-report.md', 'utf8');
-            
+
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -84,11 +84,11 @@ jobs:
           script: |
             const { readFileSync, writeFileSync, readdirSync } = require('fs');
             const { join } = require('path');
-            
+
             const workflowsDir = '.github/workflows';
             const files = readdirSync(workflowsDir);
             let updated = false;
-            
+
             for (const file of files) {
               if (!file.endsWith('.yml') && !file.endsWith('.yaml')) continue;
               
@@ -109,7 +109,7 @@ jobs:
                 console.log(`Updated ${file}`);
               }
             }
-            
+
             return updated;
 
       - name: Create PR if actions were updated
@@ -120,13 +120,13 @@ jobs:
           title: '🔄 Update GitHub Actions'
           body: |
             ## 🤖 Automated GitHub Actions Update
-            
+
             This PR updates GitHub Actions to their latest versions.
-            
+
             ### Changes
             - Updated action versions to latest stable releases
             - Ensured compatibility across all workflows
-            
+
             ---
             *This PR was automatically created by the boilerplate sync workflow.*
           branch: actions/update-versions

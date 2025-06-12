@@ -14,7 +14,7 @@ requirements:
     - ci/lint
     - ci/type-check
     - security/audit
-    
+
   # Required approvals (set to 0 for truly automatic merging of patches)
   approvals: 0
 
@@ -23,18 +23,18 @@ rules:
   # Auto-merge Dependabot PRs for patch and minor updates
   - match:
       dependency_type: all
-      update_type: "semver:patch"
+      update_type: 'semver:patch'
     allowed: true
-  
+
   - match:
       dependency_type: all
-      update_type: "semver:minor"
+      update_type: 'semver:minor'
     allowed: true
-    
+
   # Don't auto-merge major updates
   - match:
       dependency_type: all
-      update_type: "semver:major"
+      update_type: 'semver:major'
     allowed: false
 
 # Delete branch after merge
@@ -43,7 +43,7 @@ delete_branch_after_merge: true
 # Comment to post on auto-merged PRs
 merge_commit_message: |
   Auto-merged by GitHub Actions
-  
+
   This PR was automatically merged because:
   - All CI checks passed ✅
   - Only contains patch/minor dependency updates

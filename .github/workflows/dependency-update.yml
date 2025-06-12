@@ -32,7 +32,7 @@ jobs:
         run: |
           # Update all dependencies to their latest versions
           pnpm update --latest
-          
+
           # Update pnpm lockfile
           pnpm install --no-frozen-lockfile
 
@@ -50,19 +50,19 @@ jobs:
           title: '⬆️ Update dependencies'
           body: |
             ## 🤖 Automated Dependency Update
-            
+
             This PR updates all dependencies to their latest versions.
-            
+
             ### Checklist
             - [ ] All tests pass
             - [ ] No breaking changes identified
             - [ ] Application builds successfully
-            
+
             ### What to check
             1. Review the lockfile changes
             2. Check for any breaking changes in major version updates
             3. Test critical functionality locally
-            
+
             ---
             *This PR was automatically created by the dependency update workflow.*
           branch: deps/update-all
