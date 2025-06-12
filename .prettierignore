@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Production
+.next/
+out/
+build/
+dist/
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+next-env.d.ts
+
+# Misc
+.DS_Store
+*.pem
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Environment
+.env*
+
+# Generated
+*.d.ts
+!env.d.ts
+!global.d.ts

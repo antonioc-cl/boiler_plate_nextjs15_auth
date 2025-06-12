@@ -1,0 +1,5 @@
+{
+  "vitest.enable": true,
+  "vitest.commandLine": "pnpm test",
+  "testing.automaticallyOpenPeekView": "never"
+}

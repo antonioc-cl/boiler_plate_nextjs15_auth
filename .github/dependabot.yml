@@ -1,0 +1,66 @@
+version: 2
+updates:
+  # Enable version updates for npm/pnpm dependencies
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'antonio' # Replace with your GitHub username
+    labels:
+      - 'dependencies'
+      - 'automated'
+    groups:
+      # Group all development dependencies together
+      dev-dependencies:
+        patterns:
+          - '@types/*'
+          - 'eslint*'
+          - 'prettier*'
+          - '@testing-library/*'
+          - 'vitest*'
+          - '@vitest/*'
+        dependency-type: 'development'
+      # Group all production dependencies together
+      production-dependencies:
+        dependency-type: 'production'
+        exclude-patterns:
+          - '@radix-ui/*'
+      # Group Radix UI updates together
+      radix-ui:
+        patterns:
+          - '@radix-ui/*'
+    # Ignore specific dependencies
+    ignore:
+      # Example: Ignore major updates for React
+      # - dependency-name: "react"
+      #   update-types: ["version-update:semver-major"]
+    commit-message:
+      prefix: 'chore'
+      prefix-development: 'chore'
+      include: 'scope'
+    milestone: 1
+    # Automatically merge minor and patch updates for dev dependencies
+    versioning-strategy: increase
+
+  # Enable security updates for GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'antonio' # Replace with your GitHub username
+    labels:
+      - 'github-actions'
+      - 'automated'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
