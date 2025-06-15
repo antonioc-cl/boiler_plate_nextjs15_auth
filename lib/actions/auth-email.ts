@@ -1,22 +1,12 @@
 'use server'
 
 import { z } from 'zod'
-import { db } from '@/lib/db'
-import {
-  users,
-  passwordResetTokens,
-  emailVerificationTokens,
-} from '@/lib/db/schema'
-import { eq, and, gt } from 'drizzle-orm'
-import { generateId } from 'lucia'
-import { validateRequest } from '@/lib/auth'
-import { hashPassword } from '@/lib/auth/utils'
+import { auth } from '@/lib/auth/better-auth'
+import { headers } from 'next/headers'
 import {
   sendPasswordResetEmail,
   sendEmailVerificationEmail,
   sendPasswordChangedEmail,
-  generatePasswordResetUrl,
-  generateVerificationUrl,
 } from '@/lib/email/auth-emails'
 import {
   checkRateLimit,
@@ -25,6 +15,9 @@ import {
   RateLimitError,
 } from '@/lib/rate-limit'
 import type { EmailActionResponse } from '@/types/auth'
+import { db } from '@/lib/db'
+import { users } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 
 // Validation schemas
 const emailSchema = z.string().email('Invalid email address')
@@ -68,45 +61,33 @@ export async function requestPasswordReset(
       throw error
     }
 
-    // Find user by email
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, validatedEmail.toLowerCase()))
-      .limit(1)
+    // Use Better Auth's forgetPassword API
+    try {
+      const response = await auth.api.forgetPassword({
+        body: {
+          email: validatedEmail.toLowerCase(),
+        },
+        headers: await headers(),
+      })
 
-    // Always return success to prevent email enumeration
-    if (!user) {
+      if (!response.status) {
+        // Better Auth returns success even if user doesn't exist to prevent enumeration
+        // So we should handle this gracefully
+        console.error('Better Auth forget password failed')
+      }
+
       return {
         success: true,
         message:
           'If an account exists with this email, you will receive a password reset link.',
       }
-    }
-
-    // Delete any existing reset tokens for this user
-    await db
-      .delete(passwordResetTokens)
-      .where(eq(passwordResetTokens.userId, user.id))
-
-    // Generate new reset token
-    const token = generateId(32)
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour
-
-    await db.insert(passwordResetTokens).values({
-      token,
-      userId: user.id,
-      expiresAt,
-    })
-
-    // Send password reset email
-    const resetUrl = generatePasswordResetUrl(token)
-    await sendPasswordResetEmail(user, resetUrl, 60)
-
-    return {
-      success: true,
-      message:
-        'If an account exists with this email, you will receive a password reset link.',
+    } catch (betterAuthError) {
+      console.error('Better Auth API error:', betterAuthError)
+      return {
+        success: true,
+        message:
+          'If an account exists with this email, you will receive a password reset link.',
+      }
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -139,57 +120,38 @@ export async function resetPassword(
       password: newPassword,
     })
 
-    // Find valid token
-    const [resetToken] = await db
-      .select()
-      .from(passwordResetTokens)
-      .where(
-        and(
-          eq(passwordResetTokens.token, validated.token),
-          gt(passwordResetTokens.expiresAt, new Date())
-        )
-      )
-      .limit(1)
+    // Use Better Auth's resetPassword API
+    try {
+      const response = await auth.api.resetPassword({
+        body: {
+          token: validated.token,
+          newPassword: validated.password,
+        },
+        headers: await headers(),
+      })
 
-    if (!resetToken) {
+      if (!response.status) {
+        return {
+          success: false,
+          error:
+            'Invalid or expired reset token. Please request a new password reset.',
+        }
+      }
+
+      // Note: Better Auth doesn't return user info in reset password response
+      // We would need to look up the user separately if needed
+
+      return {
+        success: true,
+        message: 'Your password has been reset successfully.',
+      }
+    } catch (betterAuthError) {
+      console.error('Better Auth reset password error:', betterAuthError)
       return {
         success: false,
         error:
-          'Invalid or expired reset token. Please request a new password reset.',
+          'An error occurred while resetting your password. Please try again.',
       }
-    }
-
-    // Get user
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, resetToken.userId))
-      .limit(1)
-
-    if (!user) {
-      return {
-        success: false,
-        error: 'User not found.',
-      }
-    }
-
-    // Hash new password
-    const hashedPassword = await hashPassword(validated.password)
-
-    // Update user password
-    await db.update(users).set({ hashedPassword }).where(eq(users.id, user.id))
-
-    // Delete used token
-    await db
-      .delete(passwordResetTokens)
-      .where(eq(passwordResetTokens.id, resetToken.id))
-
-    // Send confirmation email
-    await sendPasswordChangedEmail(user)
-
-    return {
-      success: true,
-      message: 'Your password has been reset successfully.',
     }
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -213,38 +175,20 @@ export async function resetPassword(
  */
 export async function verifyEmail(token: string): Promise<EmailActionResponse> {
   try {
-    // Find valid token
-    const [verificationToken] = await db
-      .select()
-      .from(emailVerificationTokens)
-      .where(
-        and(
-          eq(emailVerificationTokens.token, token),
-          gt(emailVerificationTokens.expiresAt, new Date())
-        )
-      )
-      .limit(1)
+    // Use Better Auth's verifyEmail API
+    const response = await auth.api.verifyEmail({
+      query: {
+        token,
+      },
+      headers: await headers(),
+    })
 
-    if (!verificationToken) {
+    if (!response || 'error' in response) {
       return {
         success: false,
         error: 'Invalid or expired verification token.',
       }
     }
-
-    // Update user's email verification status
-    await db
-      .update(users)
-      .set({
-        emailVerified: true,
-        emailVerifiedAt: new Date(),
-      })
-      .where(eq(users.id, verificationToken.userId))
-
-    // Delete used token
-    await db
-      .delete(emailVerificationTokens)
-      .where(eq(emailVerificationTokens.id, verificationToken.id))
 
     return {
       success: true,
@@ -264,13 +208,29 @@ export async function verifyEmail(token: string): Promise<EmailActionResponse> {
  */
 export async function resendVerificationEmail(): Promise<EmailActionResponse> {
   try {
-    // Get current user
-    const { user } = await validateRequest()
+    // Get current session
+    const session = (await auth.api.getSession({
+      headers: await headers(),
+    })) as any
+
+    if (!session?.user || !session.user.id) {
+      return {
+        success: false,
+        error: 'You must be logged in to resend verification email.',
+      }
+    }
+
+    // Check if email is already verified
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1)
 
     if (!user) {
       return {
         success: false,
-        error: 'You must be logged in to resend verification email.',
+        error: 'User not found.',
       }
     }
 
@@ -299,29 +259,35 @@ export async function resendVerificationEmail(): Promise<EmailActionResponse> {
       throw error
     }
 
-    // Delete any existing verification tokens for this user
-    await db
-      .delete(emailVerificationTokens)
-      .where(eq(emailVerificationTokens.userId, user.id))
+    // Use Better Auth's sendVerificationEmail API
+    try {
+      const response = await auth.api.sendVerificationEmail({
+        body: {
+          email: user.email,
+        },
+        headers: await headers(),
+      })
 
-    // Generate new verification token
-    const token = generateId(32)
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+      if (!response || 'error' in response) {
+        console.error('Better Auth send verification error')
+        return {
+          success: false,
+          error:
+            'An error occurred while sending verification email. Please try again.',
+        }
+      }
 
-    await db.insert(emailVerificationTokens).values({
-      token,
-      userId: user.id,
-      email: user.email,
-      expiresAt,
-    })
-
-    // Send verification email
-    const verificationUrl = generateVerificationUrl(token)
-    await sendEmailVerificationEmail(user, verificationUrl, 24)
-
-    return {
-      success: true,
-      message: 'Verification email sent. Please check your inbox.',
+      return {
+        success: true,
+        message: 'Verification email sent. Please check your inbox.',
+      }
+    } catch (betterAuthError) {
+      console.error('Better Auth API error:', betterAuthError)
+      return {
+        success: false,
+        error:
+          'An error occurred while sending verification email. Please try again.',
+      }
     }
   } catch (error) {
     console.error('Resend verification email error:', error)
@@ -348,9 +314,12 @@ export async function sendTestEmail(
   }
 
   try {
-    const { user } = await validateRequest()
+    // Get current session
+    const session = (await auth.api.getSession({
+      headers: await headers(),
+    })) as any
 
-    if (!user) {
+    if (!session?.user || !session.user.id || !session.user.email) {
       return {
         success: false,
         error: 'You must be logged in to send test emails.',
@@ -358,19 +327,24 @@ export async function sendTestEmail(
     }
 
     const testUrl = 'http://localhost:3000/test-link'
+    const emailUser = {
+      id: session.user.id,
+      email: session.user.email,
+      username: session.user.name || null,
+    }
 
     switch (type) {
       case 'welcome':
-        await sendEmailVerificationEmail(user, testUrl)
+        await sendEmailVerificationEmail(emailUser, testUrl)
         break
       case 'reset':
-        await sendPasswordResetEmail(user, testUrl)
+        await sendPasswordResetEmail(emailUser, testUrl)
         break
       case 'verify':
-        await sendEmailVerificationEmail(user, testUrl)
+        await sendEmailVerificationEmail(emailUser, testUrl)
         break
       case 'changed':
-        await sendPasswordChangedEmail(user, '127.0.0.1')
+        await sendPasswordChangedEmail(emailUser, '127.0.0.1')
         break
       default:
         return {

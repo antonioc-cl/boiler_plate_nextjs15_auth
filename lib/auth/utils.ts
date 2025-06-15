@@ -1,11 +1,10 @@
-import { lucia } from './index'
-import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { users } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
-import { generateId } from 'lucia'
 import { hash, verify } from '@node-rs/argon2'
+import { auth } from './better-auth'
+import { headers } from 'next/headers'
+import { nanoid } from 'nanoid'
 
 // Password hashing configuration
 const hashingConfig = {
@@ -32,7 +31,7 @@ export async function createUser(
   username?: string
 ) {
   const hashedPassword = await hashPassword(password)
-  const userId = generateId(15)
+  const userId = nanoid(15)
 
   try {
     const [user] = await db
@@ -56,47 +55,30 @@ export async function createUser(
 }
 
 export async function signIn(email: string, password: string) {
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email.toLowerCase()))
-    .limit(1)
+  const result = await auth.api.signInEmail({
+    body: {
+      email: email.toLowerCase(),
+      password,
+    },
+    headers: await headers(),
+  })
 
-  if (!user) {
+  if (!result) {
     throw new Error('Invalid email or password')
   }
 
-  const validPassword = await verifyPassword(user.hashedPassword, password)
-  if (!validPassword) {
-    throw new Error('Invalid email or password')
-  }
-
-  const session = await lucia.createSession(user.id, {})
-  const sessionCookie = lucia.createSessionCookie(session.id)
-  ;(await cookies()).set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  )
-
-  return { user, session }
+  return result
 }
 
 export async function signOut() {
-  const { session } = await lucia.validateSession(
-    (await cookies()).get(lucia.sessionCookieName)?.value ?? ''
-  )
-  if (!session) {
-    return redirect('/login')
-  }
+  await auth.api.signOut({
+    headers: await headers(),
+  })
 
-  await lucia.invalidateSession(session.id)
+  return redirect('/sign-in')
+}
 
-  const sessionCookie = lucia.createBlankSessionCookie()
-  ;(await cookies()).set(
-    sessionCookie.name,
-    sessionCookie.value,
-    sessionCookie.attributes
-  )
-  return redirect('/login')
+// Generate a unique ID (Better Auth compatible)
+export function generateId(length: number = 15): string {
+  return nanoid(length)
 }

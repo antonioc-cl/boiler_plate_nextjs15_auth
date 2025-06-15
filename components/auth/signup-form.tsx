@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -24,9 +25,11 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/lib/types/routes'
+import { signUp } from '@/lib/auth/client'
 
 const signupSchema = z
   .object({
+    name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Please enter a valid email address'),
     password: z
       .string()
@@ -43,17 +46,15 @@ const signupSchema = z
 
 type SignupFormValues = z.infer<typeof signupSchema>
 
-interface SignupFormProps {
-  onSubmit: (values: Omit<SignupFormValues, 'confirmPassword'>) => Promise<void>
-}
-
-export function SignupForm({ onSubmit }: SignupFormProps) {
+export function SignupForm() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -64,8 +65,21 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
     try {
       setIsLoading(true)
       setError(null)
-      const { confirmPassword: _, ...submitValues } = values
-      await onSubmit(submitValues)
+
+      const result = await signUp.email({
+        email: values.email,
+        name: values.name,
+        password: values.password,
+        callbackURL: '/dashboard',
+      })
+
+      if (result.error) {
+        setError(result.error.message || 'Failed to create account')
+      } else {
+        // Redirect to email verification or dashboard
+        router.push('/verify-email')
+        router.refresh()
+      }
     } catch (error) {
       setError(
         error instanceof Error
@@ -91,6 +105,24 @@ export function SignupForm({ onSubmit }: SignupFormProps) {
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="John Doe"
+                      autoComplete="name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="email"

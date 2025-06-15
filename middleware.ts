@@ -1,12 +1,22 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { auth } from '@/lib/auth/better-auth'
 
 // Constants
-const SESSION_COOKIE_NAME = 'session' // This should match lucia.sessionCookieName
+const SESSION_COOKIE_NAME = 'better-auth-session' // Better Auth's session cookie name
 const PROTECTED_ROUTE_GROUP = '/(protected)'
 const AUTH_ROUTE_GROUP = '/(auth)'
 const DEFAULT_LOGIN_REDIRECT = '/dashboard'
 const LOGIN_ROUTE = '/login'
+
+// Performance optimization: Skip session validation for certain paths
+const SKIP_SESSION_VALIDATION_PATHS = [
+  '/api/auth/', // Better Auth's own routes
+  '/_next/',
+  '/favicon.ico',
+  '/robots.txt',
+  '/sitemap.xml',
+]
 
 // Type definitions
 type MiddlewareResponse = NextResponse
@@ -26,6 +36,7 @@ const routeConfig: RouteConfig = {
     '/register',
     '/forgot-password',
     '/reset-password',
+    '/verify-email',
   ],
   publicRoutes: ['/', '/about', '/contact'],
 }
@@ -60,27 +71,56 @@ function isValidCallbackUrl(callbackUrl: string, requestUrl: string): boolean {
 }
 
 /**
+ * Validate session using Better Auth
+ * Returns true if session is valid, false otherwise
+ */
+async function validateSession(request: NextRequest): Promise<boolean> {
+  try {
+    // Quick check: if no session cookie exists, skip validation
+    const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)
+    if (!sessionCookie?.value) {
+      return false
+    }
+
+    // Convert NextRequest headers to standard Headers for Better Auth
+    const headers = new Headers()
+    request.headers.forEach((value, key) => {
+      headers.append(key, value)
+    })
+
+    // Add cookies to headers for Better Auth
+    const cookieHeader = request.headers.get('cookie')
+    if (cookieHeader) {
+      headers.set('cookie', cookieHeader)
+    }
+
+    // Get session from Better Auth
+    const session = await auth.api.getSession({ headers })
+    return !!session
+  } catch (error) {
+    // Session validation failed, treat as no session
+    console.error('Session validation error:', error)
+    return false
+  }
+}
+
+/**
  * Next.js middleware function
  * Runs before every request to check authentication status
+ * Integrated with Better Auth for session management
  */
 export async function middleware(
   request: NextRequest
 ): Promise<MiddlewareResponse> {
   const { pathname, searchParams } = request.nextUrl
 
-  // Early return for static assets and API routes
+  // Performance optimization: Skip middleware for certain paths
   if (
-    pathname.startsWith('/api/') ||
-    pathname.startsWith('/_next/') ||
-    pathname.includes('/favicon.ico') ||
+    SKIP_SESSION_VALIDATION_PATHS.some((path) => pathname.startsWith(path)) ||
     pathname.includes('.') // Files with extensions
   ) {
     return NextResponse.next()
   }
-
-  // Get session cookie
-  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)
-  const hasSession = !!sessionCookie?.value
 
   // Determine route type
   const isProtectedRoute =
@@ -91,8 +131,16 @@ export async function middleware(
     isRouteGroup(pathname, AUTH_ROUTE_GROUP) ||
     matchesRoute(pathname, routeConfig.authRoutes)
 
-  // Handle protected routes - redirect to login if no session
-  if (isProtectedRoute && !hasSession) {
+  // Only validate session if we're on a protected or auth route
+  const needsSessionCheck = isProtectedRoute || isAuthRoute
+  let hasValidSession = false
+
+  if (needsSessionCheck) {
+    hasValidSession = await validateSession(request)
+  }
+
+  // Handle protected routes - redirect to login if no valid session
+  if (isProtectedRoute && !hasValidSession) {
     const loginUrl = new URL(LOGIN_ROUTE, request.url)
 
     // Preserve the intended destination
@@ -103,10 +151,13 @@ export async function middleware(
     const response = NextResponse.redirect(loginUrl)
 
     // Clear any invalid session cookie
+    const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)
     if (sessionCookie) {
       response.cookies.delete({
         name: SESSION_COOKIE_NAME,
         path: '/',
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
       })
     }
 
@@ -114,7 +165,7 @@ export async function middleware(
   }
 
   // Handle auth routes - redirect authenticated users
-  if (isAuthRoute && hasSession) {
+  if (isAuthRoute && hasValidSession) {
     // Check for callback URL in query params
     const callbackUrl = searchParams.get('callbackUrl')
 

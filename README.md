@@ -11,13 +11,17 @@ A production-ready Next.js 15 boilerplate with TypeScript, authentication struct
 
 - **Next.js 15** with App Router
 - **TypeScript** with strict mode configuration
+- **Better Auth** for authentication (email/password, OAuth, 2FA)
 - **TailwindCSS** for styling
-- **ESLint & Prettier** configured for code quality
+- **OXC & Prettier** for lightning-fast code quality checks
+- **Drizzle ORM** with PostgreSQL (Neon)
+- **Email integration** with Plunk and React Email
 - **Production-ready** directory structure
 - **Security headers** configured
-- **Authentication** structure ready (middleware, protected routes)
+- **Authentication** fully implemented (sign up, sign in, email verification, password reset)
 - **Server Actions** support
 - **API Routes** with health check endpoint
+- **Testing** with Vitest and Playwright
 
 ## Directory Structure
 
@@ -38,8 +42,8 @@ A production-ready Next.js 15 boilerplate with TypeScript, authentication struct
 
 /lib/                   # Core application logic
   /actions/             # Server actions
-  /db/                  # Database configuration
-  /auth/                # Authentication configuration
+  /db/                  # Database configuration (Drizzle)
+  /auth/                # Better Auth configuration
   /types/               # TypeScript type definitions
   utils.ts              # Utility functions
 
@@ -86,11 +90,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `pnpm dev` - Start development server
 - `pnpm build` - Build for production
 - `pnpm start` - Start production server
-- `pnpm lint` - Run ESLint
-- `pnpm lint:fix` - Fix ESLint errors
+- `pnpm lint` - Run OXC linter (super fast!)
+- `pnpm lint:fix` - Fix linting errors
 - `pnpm format` - Format code with Prettier
 - `pnpm format:check` - Check code formatting
 - `pnpm type-check` - Run TypeScript type checking
+- `pnpm test` - Run unit tests with Vitest
+- `pnpm e2e` - Run E2E tests with Playwright
+- `pnpm db:migrate` - Run database migrations
+- `pnpm db:studio` - Open Drizzle Studio
 
 ## Configuration
 
@@ -98,9 +106,11 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 Strict mode is enabled with additional safety checks. Configuration in `tsconfig.json`.
 
-### ESLint & Prettier
+### OXC & Prettier
 
-Pre-configured for Next.js with TypeScript. Automatically formats code on save in VS Code.
+- **OXC**: Lightning-fast linter (50-100x faster than ESLint) with similar rules
+- **Prettier**: Code formatter configured for consistency
+- Automatically formats code on save in VS Code
 
 ### TailwindCSS
 
@@ -110,21 +120,24 @@ Custom theme configuration with CSS variables for easy theming. Dark mode ready.
 
 See `.env.example` for required environment variables:
 
-- Database configuration
-- Authentication secrets
-- Email configuration
-- External service keys
+- `DATABASE_URL` - PostgreSQL connection string (Neon)
+- `BETTER_AUTH_SECRET` - Secret for Better Auth sessions
+- `PLUNK_API_KEY` - Email service API key
+- `NEXT_PUBLIC_APP_URL` - Your app's public URL
+- OAuth provider credentials (optional)
 
 ## Production Checklist
 
 - [ ] Update environment variables
-- [ ] Configure database connection
-- [ ] Set up authentication provider
-- [ ] Configure email service
+- [ ] Configure database connection (Neon PostgreSQL)
+- [ ] Set up Better Auth secret and OAuth providers
+- [ ] Configure Plunk email service
 - [ ] Update security headers in `next.config.ts`
-- [ ] Set up error monitoring (e.g., Sentry)
-- [ ] Configure analytics
+- [ ] Set up error monitoring (Sentry is pre-configured)
+- [ ] Configure analytics (Vercel Analytics ready)
 - [ ] Update metadata in `app/layout.tsx`
+- [ ] Run database migrations: `pnpm db:migrate`
+- [ ] Test authentication flows thoroughly
 
 ## VS Code Integration
 

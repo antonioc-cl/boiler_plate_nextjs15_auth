@@ -3,12 +3,16 @@ import { render, screen, waitFor } from '@/src/test/test-utils'
 import userEvent from '@testing-library/user-event'
 import { LoginForm } from '@/components/auth/login-form'
 import { SignupForm } from '@/components/auth/signup-form'
-import { loginAction, signupAction } from './actions/auth'
+import { signIn, signUp } from '@/lib/auth/client'
 
-// Mock the server actions
-vi.mock('./actions/auth', () => ({
-  loginAction: vi.fn(),
-  signupAction: vi.fn(),
+// Mock the auth client methods
+vi.mock('@/lib/auth/client', () => ({
+  signIn: {
+    email: vi.fn(),
+  },
+  signUp: {
+    email: vi.fn(),
+  },
 }))
 
 // Mock next/navigation
@@ -32,26 +36,9 @@ describe('Authentication Integration Tests', () => {
       const user = userEvent.setup()
 
       // Mock successful login
-      vi.mocked(loginAction).mockResolvedValueOnce({ success: true })
+      vi.mocked(signIn.email).mockResolvedValueOnce({ error: null })
 
-      // Create a wrapper that integrates the form with the action
-      const LoginPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await loginAction(values.email, values.password)
-          if (result.success) {
-            mockPush('/dashboard')
-          } else if (!result.success && result.error) {
-            throw new Error(result.error)
-          }
-        }
-
-        return <LoginForm onSubmit={handleSubmit} />
-      }
-
-      render(<LoginPage />)
+      render(<LoginForm />)
 
       // Fill in the form
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
@@ -62,10 +49,11 @@ describe('Authentication Integration Tests', () => {
 
       // Verify the action was called with correct data
       await waitFor(() => {
-        expect(loginAction).toHaveBeenCalledWith(
-          'test@example.com',
-          'password123'
-        )
+        expect(signIn.email).toHaveBeenCalledWith({
+          email: 'test@example.com',
+          password: 'password123',
+          callbackURL: '/dashboard',
+        })
         expect(mockPush).toHaveBeenCalledWith('/dashboard')
       })
     })
@@ -74,28 +62,11 @@ describe('Authentication Integration Tests', () => {
       const user = userEvent.setup()
 
       // Mock failed login
-      vi.mocked(loginAction).mockResolvedValueOnce({
-        success: false,
-        error: 'Invalid credentials',
+      vi.mocked(signIn.email).mockResolvedValueOnce({
+        error: { message: 'Invalid credentials' },
       })
 
-      const LoginPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await loginAction(values.email, values.password)
-          if (result.success) {
-            mockPush('/dashboard')
-          } else if (!result.success && result.error) {
-            throw new Error(result.error)
-          }
-        }
-
-        return <LoginForm onSubmit={handleSubmit} />
-      }
-
-      render(<LoginPage />)
+      render(<LoginForm />)
 
       // Fill in the form with invalid credentials
       await user.type(screen.getByLabelText(/email/i), 'wrong@example.com')
@@ -117,28 +88,9 @@ describe('Authentication Integration Tests', () => {
       const user = userEvent.setup()
 
       // Mock network error
-      vi.mocked(loginAction).mockResolvedValueOnce({
-        success: false,
-        error: 'Network error',
-      })
+      vi.mocked(signIn.email).mockRejectedValueOnce(new Error('Network error'))
 
-      const LoginPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await loginAction(values.email, values.password)
-          if (result.success) {
-            mockPush('/dashboard')
-          } else if (!result.success && result.error) {
-            throw new Error(result.error)
-          }
-        }
-
-        return <LoginForm onSubmit={handleSubmit} />
-      }
-
-      render(<LoginPage />)
+      render(<LoginForm />)
 
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
@@ -156,28 +108,12 @@ describe('Authentication Integration Tests', () => {
       const user = userEvent.setup()
 
       // Mock successful signup
-      vi.mocked(signupAction).mockResolvedValueOnce({ success: true })
+      vi.mocked(signUp.email).mockResolvedValueOnce({ error: null })
 
-      // Create a wrapper that integrates the form with the action
-      const SignupPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await signupAction(values.email, values.password)
-          if (result.success) {
-            mockPush('/dashboard')
-          } else if (!result.success && result.error) {
-            throw new Error(result.error)
-          }
-        }
-
-        return <SignupForm onSubmit={handleSubmit} />
-      }
-
-      render(<SignupPage />)
+      render(<SignupForm />)
 
       // Fill in the form
+      await user.type(screen.getByLabelText('Name'), 'John Doe')
       await user.type(screen.getByLabelText('Email'), 'newuser@example.com')
       await user.type(screen.getByLabelText('Password'), 'Password123!')
       await user.type(
@@ -188,13 +124,15 @@ describe('Authentication Integration Tests', () => {
       // Submit the form
       await user.click(screen.getByRole('button', { name: /create account/i }))
 
-      // Verify the action was called with correct data (without confirmPassword)
+      // Verify the action was called with correct data
       await waitFor(() => {
-        expect(signupAction).toHaveBeenCalledWith(
-          'newuser@example.com',
-          'Password123!'
-        )
-        expect(mockPush).toHaveBeenCalledWith('/dashboard')
+        expect(signUp.email).toHaveBeenCalledWith({
+          email: 'newuser@example.com',
+          name: 'John Doe',
+          password: 'Password123!',
+          callbackURL: '/dashboard',
+        })
+        expect(mockPush).toHaveBeenCalledWith('/verify-email')
       })
     })
 
@@ -202,30 +140,14 @@ describe('Authentication Integration Tests', () => {
       const user = userEvent.setup()
 
       // Mock duplicate email error
-      vi.mocked(signupAction).mockResolvedValueOnce({
-        success: false,
-        error: 'Email already exists',
+      vi.mocked(signUp.email).mockResolvedValueOnce({
+        error: { message: 'Email already exists' },
       })
 
-      const SignupPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await signupAction(values.email, values.password)
-          if (result.success) {
-            mockPush('/dashboard')
-          } else if (!result.success && result.error) {
-            throw new Error(result.error)
-          }
-        }
-
-        return <SignupForm onSubmit={handleSubmit} />
-      }
-
-      render(<SignupPage />)
+      render(<SignupForm />)
 
       // Fill in the form with existing email
+      await user.type(screen.getByLabelText('Name'), 'John Doe')
       await user.type(screen.getByLabelText('Email'), 'existing@example.com')
       await user.type(screen.getByLabelText('Password'), 'Password123!')
       await user.type(
@@ -248,25 +170,10 @@ describe('Authentication Integration Tests', () => {
     it('should validate passwords match before calling server action', async () => {
       const user = userEvent.setup()
 
-      const SignupPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await signupAction(values.email, values.password)
-          if (result.success) {
-            mockPush('/dashboard')
-          } else if (!result.success && result.error) {
-            throw new Error(result.error)
-          }
-        }
-
-        return <SignupForm onSubmit={handleSubmit} />
-      }
-
-      render(<SignupPage />)
+      render(<SignupForm />)
 
       // Fill in the form with mismatched passwords
+      await user.type(screen.getByLabelText('Name'), 'John Doe')
       await user.type(screen.getByLabelText('Email'), 'test@example.com')
       await user.type(screen.getByLabelText('Password'), 'Password123!')
       await user.type(
@@ -280,7 +187,7 @@ describe('Authentication Integration Tests', () => {
       // Verify server action was NOT called due to validation error
       await waitFor(() => {
         expect(screen.getByText(/passwords don't match/i)).toBeInTheDocument()
-        expect(signupAction).not.toHaveBeenCalled()
+        expect(signUp.email).not.toHaveBeenCalled()
         expect(mockPush).not.toHaveBeenCalled()
       })
     })
@@ -290,23 +197,9 @@ describe('Authentication Integration Tests', () => {
     it('should retry after fixing validation errors', async () => {
       const user = userEvent.setup()
 
-      vi.mocked(loginAction).mockResolvedValueOnce({ success: true })
+      vi.mocked(signIn.email).mockResolvedValueOnce({ error: null })
 
-      const LoginPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await loginAction(values.email, values.password)
-          if (result.success) {
-            mockPush('/dashboard')
-          }
-        }
-
-        return <LoginForm onSubmit={handleSubmit} />
-      }
-
-      render(<LoginPage />)
+      render(<LoginForm />)
 
       // First attempt with short password (less than 8 characters)
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
@@ -320,7 +213,7 @@ describe('Authentication Integration Tests', () => {
           /password must be at least 8 characters/i
         )
         expect(errorElement).toBeInTheDocument()
-        expect(loginAction).not.toHaveBeenCalled()
+        expect(signIn.email).not.toHaveBeenCalled()
       })
 
       // Fix the password and retry
@@ -330,10 +223,11 @@ describe('Authentication Integration Tests', () => {
 
       // Should now succeed
       await waitFor(() => {
-        expect(loginAction).toHaveBeenCalledWith(
-          'test@example.com',
-          'password123'
-        )
+        expect(signIn.email).toHaveBeenCalledWith({
+          email: 'test@example.com',
+          password: 'password123',
+          callbackURL: '/dashboard',
+        })
         expect(mockPush).toHaveBeenCalledWith('/dashboard')
       })
     })
@@ -342,33 +236,17 @@ describe('Authentication Integration Tests', () => {
       const user = userEvent.setup()
 
       // Mock timeout
-      vi.mocked(loginAction).mockImplementation(
+      vi.mocked(signIn.email).mockImplementation(
         () =>
           new Promise((resolve) =>
             setTimeout(
-              () => resolve({ success: false, error: 'Request timeout' }),
+              () => resolve({ error: { message: 'Request timeout' } }),
               100
             )
           )
       )
 
-      const LoginPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await loginAction(values.email, values.password)
-          if (result.success) {
-            mockPush('/dashboard')
-          } else if (!result.success && result.error) {
-            throw new Error(result.error)
-          }
-        }
-
-        return <LoginForm onSubmit={handleSubmit} />
-      }
-
-      render(<LoginPage />)
+      render(<LoginForm />)
 
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
@@ -392,26 +270,9 @@ describe('Authentication Integration Tests', () => {
     it('should refresh the page after successful login', async () => {
       const user = userEvent.setup()
 
-      vi.mocked(loginAction).mockResolvedValueOnce({ success: true })
+      vi.mocked(signIn.email).mockResolvedValueOnce({ error: null })
 
-      const LoginPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await loginAction(values.email, values.password)
-          if (result.success) {
-            mockRefresh()
-            mockPush('/dashboard')
-          } else if (!result.success && result.error) {
-            throw new Error(result.error)
-          }
-        }
-
-        return <LoginForm onSubmit={handleSubmit} />
-      }
-
-      render(<LoginPage />)
+      render(<LoginForm />)
 
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
@@ -428,30 +289,14 @@ describe('Authentication Integration Tests', () => {
 
       // Mock a slow server action
       let callCount = 0
-      vi.mocked(loginAction).mockImplementation(() => {
+      vi.mocked(signIn.email).mockImplementation(() => {
         callCount++
         return new Promise((resolve) =>
-          setTimeout(() => resolve({ success: true }), 100)
+          setTimeout(() => resolve({ error: null }), 100)
         )
       })
 
-      const LoginPage = () => {
-        const handleSubmit = async (values: {
-          email: string
-          password: string
-        }) => {
-          const result = await loginAction(values.email, values.password)
-          if (result.success) {
-            mockPush('/dashboard')
-          } else if (!result.success && result.error) {
-            throw new Error(result.error)
-          }
-        }
-
-        return <LoginForm onSubmit={handleSubmit} />
-      }
-
-      render(<LoginPage />)
+      render(<LoginForm />)
 
       await user.type(screen.getByLabelText(/email/i), 'test@example.com')
       await user.type(screen.getByLabelText(/password/i), 'password123')
@@ -459,10 +304,11 @@ describe('Authentication Integration Tests', () => {
       // Try to submit multiple times quickly
       const submitButton = screen.getByRole('button', { name: /sign in/i })
       await user.click(submitButton)
-      await user.click(submitButton)
-      await user.click(submitButton)
 
-      // Should only process one submission
+      // The button should be disabled after first click
+      expect(submitButton).toBeDisabled()
+
+      // Wait for the operation to complete
       await waitFor(
         () => {
           expect(callCount).toBe(1)

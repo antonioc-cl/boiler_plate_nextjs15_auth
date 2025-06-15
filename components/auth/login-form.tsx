@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -24,6 +25,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { ROUTES } from '@/lib/types/routes'
+import { signIn } from '@/lib/auth/client'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -32,11 +34,8 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
-interface LoginFormProps {
-  onSubmit: (values: LoginFormValues) => Promise<void>
-}
-
-export function LoginForm({ onSubmit }: LoginFormProps) {
+export function LoginForm() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -52,7 +51,19 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
     try {
       setIsLoading(true)
       setError(null)
-      await onSubmit(values)
+
+      const result = await signIn.email({
+        email: values.email,
+        password: values.password,
+        callbackURL: '/dashboard',
+      })
+
+      if (result.error) {
+        setError(result.error.message || 'Invalid email or password')
+      } else {
+        router.push('/dashboard')
+        router.refresh()
+      }
     } catch (error) {
       setError(
         error instanceof Error

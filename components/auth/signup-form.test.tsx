@@ -2,16 +2,39 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@/src/test/test-utils'
 import { SignupForm } from './signup-form'
 import userEvent from '@testing-library/user-event'
+import { useRouter } from 'next/navigation'
+import * as authClient from '@/lib/auth/client'
+
+// Mock Next.js router
+vi.mock('next/navigation', () => ({
+  useRouter: vi.fn(),
+}))
+
+// Mock auth client
+vi.mock('@/lib/auth/client', () => ({
+  signUp: {
+    email: vi.fn(),
+  },
+}))
 
 describe('SignupForm', () => {
-  const mockOnSubmit = vi.fn()
+  const mockPush = vi.fn()
+  const mockRefresh = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(useRouter).mockReturnValue({
+      push: mockPush,
+      refresh: mockRefresh,
+      replace: vi.fn(),
+      prefetch: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+    } as any)
   })
 
   it('should render all form elements', () => {
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    render(<SignupForm />)
 
     // Check for the card title - using data-slot attribute
     const titleElement = document.querySelector('[data-slot="card-title"]')
@@ -44,7 +67,7 @@ describe('SignupForm', () => {
 
   it('should validate email field', async () => {
     const user = userEvent.setup()
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    render(<SignupForm />)
 
     const emailInput = screen.getByLabelText('Email')
     const submitButton = screen.getByRole('button', { name: /create account/i })
@@ -80,7 +103,7 @@ describe('SignupForm', () => {
 
   it('should validate password requirements', async () => {
     const user = userEvent.setup()
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    render(<SignupForm />)
 
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
@@ -147,7 +170,7 @@ describe('SignupForm', () => {
 
   it('should validate password confirmation', async () => {
     const user = userEvent.setup()
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    render(<SignupForm />)
 
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
@@ -175,72 +198,90 @@ describe('SignupForm', () => {
       expect(
         screen.queryByText(/passwords don't match/i)
       ).not.toBeInTheDocument()
-      expect(mockOnSubmit).toHaveBeenCalled()
+      expect(authClient.signUp.email).toHaveBeenCalled()
     })
   })
 
   it('should submit form with valid data', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockResolvedValueOnce(undefined)
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signUp.email).mockResolvedValueOnce({
+      error: null,
+    } as any)
+    render(<SignupForm />)
 
+    const nameInput = screen.getByLabelText('Name')
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
 
+    await user.type(nameInput, 'John Doe')
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'Password123')
     await user.type(confirmPasswordInput, 'Password123')
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalledWith({
+      expect(authClient.signUp.email).toHaveBeenCalledWith({
         email: 'test@example.com',
+        name: 'John Doe',
         password: 'Password123',
+        callbackURL: '/dashboard',
       })
+      expect(mockPush).toHaveBeenCalledWith('/verify-email')
+      expect(mockRefresh).toHaveBeenCalled()
     })
   })
 
   it('should not include confirmPassword in submission data', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockResolvedValueOnce(undefined)
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signUp.email).mockResolvedValueOnce({
+      error: null,
+    } as any)
+    render(<SignupForm />)
 
+    const nameInput = screen.getByLabelText('Name')
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
 
+    await user.type(nameInput, 'John Doe')
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'Password123')
     await user.type(confirmPasswordInput, 'Password123')
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalledWith({
+      expect(authClient.signUp.email).toHaveBeenCalledWith({
         email: 'test@example.com',
+        name: 'John Doe',
         password: 'Password123',
+        callbackURL: '/dashboard',
       })
       // Ensure confirmPassword is NOT in the call
-      expect(mockOnSubmit).not.toHaveBeenCalledWith(
-        expect.objectContaining({ confirmPassword: expect.anything() })
-      )
+      const calls = vi.mocked(authClient.signUp.email).mock.calls
+      expect(calls[0]?.[0]).not.toHaveProperty('confirmPassword')
     })
   })
 
   it('should show loading state while submitting', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
+    vi.mocked(authClient.signUp.email).mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve({ error: null } as any), 100)
+        )
     )
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    render(<SignupForm />)
 
+    const nameInput = screen.getByLabelText('Name')
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
 
+    await user.type(nameInput, 'John Doe')
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'Password123')
     await user.type(confirmPasswordInput, 'Password123')
@@ -264,14 +305,18 @@ describe('SignupForm', () => {
   it('should display error message on submission failure', async () => {
     const user = userEvent.setup()
     const errorMessage = 'Email already exists'
-    mockOnSubmit.mockRejectedValueOnce(new Error(errorMessage))
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signUp.email).mockResolvedValueOnce({
+      error: { message: errorMessage },
+    } as any)
+    render(<SignupForm />)
 
+    const nameInput = screen.getByLabelText('Name')
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
 
+    await user.type(nameInput, 'John Doe')
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'Password123')
     await user.type(confirmPasswordInput, 'Password123')
@@ -287,14 +332,18 @@ describe('SignupForm', () => {
 
   it('should display generic error message for non-Error failures', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockRejectedValueOnce('Some string error')
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signUp.email).mockRejectedValueOnce(
+      'Some string error'
+    )
+    render(<SignupForm />)
 
+    const nameInput = screen.getByLabelText('Name')
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
 
+    await user.type(nameInput, 'John Doe')
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'Password123')
     await user.type(confirmPasswordInput, 'Password123')
@@ -309,8 +358,10 @@ describe('SignupForm', () => {
 
   it('should clear error message on new submission', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockRejectedValueOnce(new Error('First error'))
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signUp.email).mockResolvedValueOnce({
+      error: { message: 'First error' },
+    } as any)
+    render(<SignupForm />)
 
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
@@ -328,7 +379,9 @@ describe('SignupForm', () => {
     })
 
     // Second submission - should clear previous error
-    mockOnSubmit.mockResolvedValueOnce(undefined)
+    vi.mocked(authClient.signUp.email).mockResolvedValueOnce({
+      error: null,
+    } as any)
     await user.click(submitButton)
 
     await waitFor(() => {
@@ -337,7 +390,7 @@ describe('SignupForm', () => {
   })
 
   it('should have correct input types and autocomplete attributes', () => {
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    render(<SignupForm />)
 
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
@@ -354,7 +407,7 @@ describe('SignupForm', () => {
   })
 
   it('should link to login page', () => {
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    render(<SignupForm />)
 
     const loginLink = screen.getByRole('link', { name: /sign in/i })
     expect(loginLink).toHaveAttribute('href', '/login')
@@ -362,16 +415,21 @@ describe('SignupForm', () => {
 
   it('should prevent multiple simultaneous submissions', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
+    vi.mocked(authClient.signUp.email).mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve({ error: null } as any), 100)
+        )
     )
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    render(<SignupForm />)
 
+    const nameInput = screen.getByLabelText('Name')
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
 
+    await user.type(nameInput, 'John Doe')
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'Password123')
     await user.type(confirmPasswordInput, 'Password123')
@@ -381,27 +439,31 @@ describe('SignupForm', () => {
     await user.click(submitButton)
     await user.click(submitButton)
 
-    // Should only call onSubmit once
-    expect(mockOnSubmit).toHaveBeenCalledTimes(1)
+    // Should only call signUp once
+    expect(authClient.signUp.email).toHaveBeenCalledTimes(1)
   })
 
   it('should reset form on successful submission', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockResolvedValueOnce(undefined)
-    render(<SignupForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signUp.email).mockResolvedValueOnce({
+      error: null,
+    } as any)
+    render(<SignupForm />)
 
+    const nameInput = screen.getByLabelText('Name')
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
 
+    await user.type(nameInput, 'John Doe')
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'Password123')
     await user.type(confirmPasswordInput, 'Password123')
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalled()
+      expect(authClient.signUp.email).toHaveBeenCalled()
     })
 
     // Note: Form reset behavior depends on the implementation

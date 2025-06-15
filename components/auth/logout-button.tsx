@@ -3,6 +3,7 @@
 import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { ROUTES } from '@/lib/types/routes'
+import { signOut } from '@/lib/auth/client'
 
 export function LogoutButton() {
   const router = useRouter()
@@ -11,19 +12,9 @@ export function LogoutButton() {
   const handleLogout = () => {
     startTransition(async () => {
       try {
-        const response = await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-
-        if (response.ok) {
-          router.push(ROUTES.LOGIN)
-          router.refresh()
-        } else {
-          console.error('Logout failed')
-        }
+        await signOut()
+        router.push(ROUTES.LOGIN)
+        router.refresh()
       } catch (error) {
         console.error('Logout error:', error)
       }

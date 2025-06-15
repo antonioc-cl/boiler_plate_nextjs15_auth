@@ -1,0 +1,20 @@
+# Ignore patterns for oxlint
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+.turbo/
+playwright-report/
+test-results/
+public/
+.git/
+
+# Temporary files
+*.log
+*.tmp
+.DS_Store
+
+# Generated files
+*.generated.*

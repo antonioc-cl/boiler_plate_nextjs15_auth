@@ -5,23 +5,21 @@ import {
   createUser,
   signIn,
   signOut,
+  generateId,
 } from './utils'
-import { lucia } from './index'
+import { auth } from './better-auth'
 import { db } from '@/lib/db'
 import { users } from '@/lib/db/schema'
-import { cookies } from 'next/headers'
+import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import type { Session } from '@/lib/auth'
 
 // Mock dependencies
-vi.mock('./index', () => ({
-  lucia: {
-    createSession: vi.fn(),
-    createSessionCookie: vi.fn(),
-    validateSession: vi.fn(),
-    invalidateSession: vi.fn(),
-    createBlankSessionCookie: vi.fn(),
-    sessionCookieName: 'auth-session',
+vi.mock('./better-auth', () => ({
+  auth: {
+    api: {
+      signInEmail: vi.fn(),
+      signOut: vi.fn(),
+    },
   },
 }))
 
@@ -33,20 +31,21 @@ vi.mock('@/lib/db', () => ({
 }))
 
 vi.mock('next/headers', () => ({
-  cookies: vi.fn(),
+  headers: vi.fn(),
 }))
 
 vi.mock('next/navigation', () => ({
   redirect: vi.fn(),
 }))
 
-vi.mock('lucia', () => ({
-  generateId: vi.fn(() => 'test-user-id-123'),
+vi.mock('nanoid', () => ({
+  nanoid: vi.fn((length) => 'test-id-' + '0'.repeat(length - 8)),
 }))
 
 describe('auth/utils', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(headers).mockResolvedValue(new Headers())
   })
 
   describe('hashPassword', () => {
@@ -104,7 +103,7 @@ describe('auth/utils', () => {
   describe('createUser', () => {
     it('should create a user successfully', async () => {
       const mockUser = {
-        id: 'test-user-id-123',
+        id: 'test-id-0000000',
         email: 'test@example.com',
         username: 'testuser',
         hashedPassword: 'hashed-password',
@@ -128,7 +127,7 @@ describe('auth/utils', () => {
 
       expect(db.insert).toHaveBeenCalledWith(users)
       expect(mockInsert.values).toHaveBeenCalledWith({
-        id: 'test-user-id-123',
+        id: 'test-id-0000000',
         email: 'test@example.com',
         username: 'testuser',
         hashedPassword: expect.stringMatching(/^\$argon2id\$/),
@@ -138,7 +137,7 @@ describe('auth/utils', () => {
 
     it('should lowercase email addresses', async () => {
       const mockUser = {
-        id: 'test-user-id-123',
+        id: 'test-id-0000000',
         email: 'test@example.com',
         username: 'testuser',
         hashedPassword: 'hashed-password',
@@ -202,7 +201,7 @@ describe('auth/utils', () => {
 
     it('should create user without username', async () => {
       const mockUser = {
-        id: 'test-user-id-123',
+        id: 'test-id-0000000',
         email: 'test@example.com',
         username: undefined,
         hashedPassword: 'hashed-password',
@@ -230,136 +229,77 @@ describe('auth/utils', () => {
   })
 
   describe('signIn', () => {
-    const mockCookies = {
-      set: vi.fn(),
-      get: vi.fn(),
-    }
-
-    beforeEach(() => {
-      const mockedCookies = vi.mocked(cookies)
-      mockedCookies.mockResolvedValue(
-        mockCookies as unknown as Awaited<ReturnType<typeof cookies>>
-      )
-    })
-
     it('should sign in a user successfully', async () => {
-      const mockUser = {
-        id: 'user-123',
-        email: 'test@example.com',
-        hashedPassword: await hashPassword('password123'),
+      const mockResult = {
+        user: {
+          id: 'user-123',
+          email: 'test@example.com',
+          emailVerified: true,
+        },
+        session: {
+          id: 'session-123',
+          userId: 'user-123',
+        },
       }
 
-      const mockSelect = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([mockUser]),
-      }
-
-      const mockedDbSelect = vi.mocked(db.select)
-      mockedDbSelect.mockReturnValue(
-        mockSelect as unknown as ReturnType<typeof db.select>
-      )
-
-      const mockSession = { id: 'session-123', userId: 'user-123' }
-      const mockSessionCookie = {
-        name: 'auth-session',
-        value: 'session-cookie-value',
-        attributes: { httpOnly: true, secure: true },
-      }
-
-      vi.mocked(lucia.createSession).mockResolvedValue(
-        mockSession as unknown as Session
-      )
-      vi.mocked(lucia.createSessionCookie).mockReturnValue(
-        mockSessionCookie as unknown as ReturnType<
-          typeof lucia.createSessionCookie
-        >
-      )
+      vi.mocked(auth.api.signInEmail).mockResolvedValue({
+        redirect: false,
+        token: 'test-token',
+        url: undefined,
+        user: {
+          id: 'user-123',
+          email: 'test@example.com',
+          name: '',
+          image: null,
+          emailVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      } as any)
 
       const result = await signIn('test@example.com', 'password123')
 
-      expect(db.select).toHaveBeenCalled()
-      expect(lucia.createSession).toHaveBeenCalledWith('user-123', {})
-      expect(mockCookies.set).toHaveBeenCalledWith(
-        'auth-session',
-        'session-cookie-value',
-        { httpOnly: true, secure: true }
-      )
-      expect(result).toEqual({
-        user: mockUser,
-        session: mockSession,
+      expect(auth.api.signInEmail).toHaveBeenCalledWith({
+        body: {
+          email: 'test@example.com',
+          password: 'password123',
+        },
+        headers: expect.any(Headers),
       })
+      expect(result).toEqual(mockResult)
     })
 
     it('should lowercase email on sign in', async () => {
-      const mockUser = {
-        id: 'user-123',
-        email: 'test@example.com',
-        hashedPassword: await hashPassword('password123'),
-      }
+      // mockResult was unused, removing it
 
-      const mockSelect = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([mockUser]),
-      }
-
-      const mockedDbSelect = vi.mocked(db.select)
-      mockedDbSelect.mockReturnValue(
-        mockSelect as unknown as ReturnType<typeof db.select>
-      )
-
-      vi.mocked(lucia.createSession).mockResolvedValue({
-        id: 'session-123',
-        userId: 'user-123',
-        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      } as unknown as Session)
-      vi.mocked(lucia.createSessionCookie).mockReturnValue({
-        name: 'auth-session',
-        value: 'session-value',
-        attributes: {},
-      } as unknown as ReturnType<typeof lucia.createSessionCookie>)
+      vi.mocked(auth.api.signInEmail).mockResolvedValue({
+        redirect: false,
+        token: 'test-token',
+        url: undefined,
+        user: {
+          id: 'user-123',
+          email: 'test@example.com',
+          name: '',
+          image: null,
+          emailVerified: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      } as any)
 
       await signIn('TEST@EXAMPLE.COM', 'password123')
 
-      // Check that where was called with lowercase email
-      expect(mockSelect.where).toHaveBeenCalled()
+      expect(auth.api.signInEmail).toHaveBeenCalledWith({
+        body: {
+          email: 'test@example.com',
+          password: 'password123',
+        },
+        headers: expect.any(Headers),
+      })
     })
 
-    it('should throw error for non-existent user', async () => {
-      const mockSelect = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([]),
-      }
-
-      const mockedDbSelect = vi.mocked(db.select)
-      mockedDbSelect.mockReturnValue(
-        mockSelect as unknown as ReturnType<typeof db.select>
-      )
-
-      await expect(
-        signIn('nonexistent@example.com', 'password123')
-      ).rejects.toThrow('Invalid email or password')
-    })
-
-    it('should throw error for incorrect password', async () => {
-      const mockUser = {
-        id: 'user-123',
-        email: 'test@example.com',
-        hashedPassword: await hashPassword('correctPassword'),
-      }
-
-      const mockSelect = {
-        from: vi.fn().mockReturnThis(),
-        where: vi.fn().mockReturnThis(),
-        limit: vi.fn().mockResolvedValue([mockUser]),
-      }
-
-      const mockedDbSelect = vi.mocked(db.select)
-      mockedDbSelect.mockReturnValue(
-        mockSelect as unknown as ReturnType<typeof db.select>
-      )
+    it('should throw error for failed sign in', async () => {
+      vi.mocked(auth.api.signInEmail).mockResolvedValue(null as any)
 
       await expect(signIn('test@example.com', 'wrongPassword')).rejects.toThrow(
         'Invalid email or password'
@@ -368,81 +308,27 @@ describe('auth/utils', () => {
   })
 
   describe('signOut', () => {
-    const mockCookies = {
-      set: vi.fn(),
-      get: vi.fn(),
-    }
-
-    beforeEach(() => {
-      const mockedCookies = vi.mocked(cookies)
-      mockedCookies.mockResolvedValue(
-        mockCookies as unknown as Awaited<ReturnType<typeof cookies>>
-      )
-    })
-
     it('should sign out a user successfully', async () => {
-      const mockSession = { id: 'session-123', userId: 'user-123' }
-      mockCookies.get.mockReturnValue({ value: 'session-cookie-value' })
-
-      vi.mocked(lucia.validateSession).mockResolvedValue({
-        session: mockSession,
-        user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          username: null,
-          hashedPassword: '',
-          emailVerified: false,
-          emailVerifiedAt: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      } as unknown as Awaited<ReturnType<typeof lucia.validateSession>>)
-
-      const blankCookie = {
-        name: 'auth-session',
-        value: '',
-        attributes: { maxAge: 0 },
-      }
-      vi.mocked(lucia.createBlankSessionCookie).mockReturnValue(
-        blankCookie as unknown as ReturnType<
-          typeof lucia.createBlankSessionCookie
-        >
-      )
+      vi.mocked(auth.api.signOut).mockResolvedValue({ success: true } as any)
 
       await signOut()
 
-      expect(lucia.validateSession).toHaveBeenCalledWith('session-cookie-value')
-      expect(lucia.invalidateSession).toHaveBeenCalledWith('session-123')
-      expect(mockCookies.set).toHaveBeenCalledWith('auth-session', '', {
-        maxAge: 0,
+      expect(auth.api.signOut).toHaveBeenCalledWith({
+        headers: expect.any(Headers),
       })
-      expect(redirect).toHaveBeenCalledWith('/login')
+      expect(redirect).toHaveBeenCalledWith('/sign-in')
+    })
+  })
+
+  describe('generateId', () => {
+    it('should generate ID with default length', () => {
+      const id = generateId()
+      expect(id).toBe('test-id-0000000')
     })
 
-    it('should redirect to login if no session exists', async () => {
-      mockCookies.get.mockReturnValue(undefined)
-      vi.mocked(lucia.validateSession).mockResolvedValue({
-        session: null,
-        user: null,
-      } as unknown as Awaited<ReturnType<typeof lucia.validateSession>>)
-
-      await signOut()
-
-      expect(redirect).toHaveBeenCalledWith('/login')
-      expect(lucia.invalidateSession).not.toHaveBeenCalled()
-    })
-
-    it('should handle missing session cookie', async () => {
-      mockCookies.get.mockReturnValue(undefined)
-      vi.mocked(lucia.validateSession).mockResolvedValue({
-        session: null,
-        user: null,
-      } as unknown as Awaited<ReturnType<typeof lucia.validateSession>>)
-
-      await signOut()
-
-      expect(lucia.validateSession).toHaveBeenCalledWith('')
-      expect(redirect).toHaveBeenCalledWith('/login')
+    it('should generate ID with custom length', () => {
+      const id = generateId(20)
+      expect(id).toBe('test-id-000000000000')
     })
   })
 })

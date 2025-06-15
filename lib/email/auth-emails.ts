@@ -1,6 +1,5 @@
 import { render } from '@react-email/render'
 import { plunkClient, emailConfig } from './client'
-// User type is defined locally
 
 // Import email templates
 import WelcomeEmail from '@/emails/welcome'

@@ -30,3 +30,6 @@ yarn.lock
 *.d.ts
 !env.d.ts
 !global.d.ts
+
+# IDE/Editor
+.claude/

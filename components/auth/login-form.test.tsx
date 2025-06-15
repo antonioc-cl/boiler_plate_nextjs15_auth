@@ -2,16 +2,39 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@/src/test/test-utils'
 import { LoginForm } from './login-form'
 import userEvent from '@testing-library/user-event'
+import { useRouter } from 'next/navigation'
+import * as authClient from '@/lib/auth/client'
+
+// Mock Next.js router
+vi.mock('next/navigation', () => ({
+  useRouter: vi.fn(),
+}))
+
+// Mock auth client
+vi.mock('@/lib/auth/client', () => ({
+  signIn: {
+    email: vi.fn(),
+  },
+}))
 
 describe('LoginForm', () => {
-  const mockOnSubmit = vi.fn()
+  const mockPush = vi.fn()
+  const mockRefresh = vi.fn()
 
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.mocked(useRouter).mockReturnValue({
+      push: mockPush,
+      refresh: mockRefresh,
+      replace: vi.fn(),
+      prefetch: vi.fn(),
+      back: vi.fn(),
+      forward: vi.fn(),
+    } as any)
   })
 
   it('should render all form elements', () => {
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    render(<LoginForm />)
 
     // Check for the card title - using data-slot attribute
     const titleElement = document.querySelector('[data-slot="card-title"]')
@@ -37,7 +60,7 @@ describe('LoginForm', () => {
 
   it('should validate email field', async () => {
     const user = userEvent.setup()
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const submitButton = screen.getByRole('button', { name: /sign in/i })
@@ -73,7 +96,7 @@ describe('LoginForm', () => {
 
   it('should validate password field', async () => {
     const user = userEvent.setup()
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -112,8 +135,10 @@ describe('LoginForm', () => {
 
   it('should submit form with valid data', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockResolvedValueOnce(undefined)
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signIn.email).mockResolvedValueOnce({
+      error: null,
+    } as any)
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -124,19 +149,25 @@ describe('LoginForm', () => {
     await user.click(submitButton)
 
     await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalledWith({
+      expect(authClient.signIn.email).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
+        callbackURL: '/dashboard',
       })
+      expect(mockPush).toHaveBeenCalledWith('/dashboard')
+      expect(mockRefresh).toHaveBeenCalled()
     })
   })
 
   it('should show loading state while submitting', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
+    vi.mocked(authClient.signIn.email).mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve({ error: null } as any), 100)
+        )
     )
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -162,8 +193,10 @@ describe('LoginForm', () => {
   it('should display error message on submission failure', async () => {
     const user = userEvent.setup()
     const errorMessage = 'Invalid credentials'
-    mockOnSubmit.mockRejectedValueOnce(new Error(errorMessage))
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signIn.email).mockResolvedValueOnce({
+      error: { message: errorMessage },
+    } as any)
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -183,8 +216,10 @@ describe('LoginForm', () => {
 
   it('should display generic error message for non-Error failures', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockRejectedValueOnce('Some string error')
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signIn.email).mockRejectedValueOnce(
+      'Some string error'
+    )
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -203,8 +238,10 @@ describe('LoginForm', () => {
 
   it('should clear error message on new submission', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockRejectedValueOnce(new Error('First error'))
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    vi.mocked(authClient.signIn.email).mockResolvedValueOnce({
+      error: { message: 'First error' },
+    } as any)
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -220,7 +257,9 @@ describe('LoginForm', () => {
     })
 
     // Second submission - should clear previous error
-    mockOnSubmit.mockResolvedValueOnce(undefined)
+    vi.mocked(authClient.signIn.email).mockResolvedValueOnce({
+      error: null,
+    } as any)
     await user.click(submitButton)
 
     await waitFor(() => {
@@ -229,7 +268,7 @@ describe('LoginForm', () => {
   })
 
   it('should have correct input types and autocomplete attributes', () => {
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -242,7 +281,7 @@ describe('LoginForm', () => {
   })
 
   it('should link to signup page', () => {
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    render(<LoginForm />)
 
     const signupLink = screen.getByRole('link', { name: /sign up/i })
     expect(signupLink).toHaveAttribute('href', '/signup')
@@ -250,10 +289,13 @@ describe('LoginForm', () => {
 
   it('should prevent multiple simultaneous submissions', async () => {
     const user = userEvent.setup()
-    mockOnSubmit.mockImplementation(
-      () => new Promise((resolve) => setTimeout(resolve, 100))
+    vi.mocked(authClient.signIn.email).mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => resolve({ error: null } as any), 100)
+        )
     )
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -267,13 +309,13 @@ describe('LoginForm', () => {
     await user.click(submitButton)
     await user.click(submitButton)
 
-    // Should only call onSubmit once
-    expect(mockOnSubmit).toHaveBeenCalledTimes(1)
+    // Should only call signIn once
+    expect(authClient.signIn.email).toHaveBeenCalledTimes(1)
   })
 
   it('should not submit form with invalid data', async () => {
     const user = userEvent.setup()
-    render(<LoginForm onSubmit={mockOnSubmit} />)
+    render(<LoginForm />)
 
     const emailInput = screen.getByLabelText(/email/i)
     const passwordInput = screen.getByLabelText(/password/i)
@@ -289,7 +331,7 @@ describe('LoginForm', () => {
     // Wait a bit to ensure no submission happens
     await waitFor(() => {
       // Ensure the form wasn't submitted due to validation error
-      expect(mockOnSubmit).not.toHaveBeenCalled()
+      expect(authClient.signIn.email).not.toHaveBeenCalled()
     })
   })
 })
