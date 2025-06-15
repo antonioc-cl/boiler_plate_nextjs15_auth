@@ -231,18 +231,6 @@ describe('auth/utils', () => {
   describe('signIn', () => {
     it('should sign in a user successfully', async () => {
       const mockResult = {
-        user: {
-          id: 'user-123',
-          email: 'test@example.com',
-          emailVerified: true,
-        },
-        session: {
-          id: 'session-123',
-          userId: 'user-123',
-        },
-      }
-
-      vi.mocked(auth.api.signInEmail).mockResolvedValue({
         redirect: false,
         token: 'test-token',
         url: undefined,
@@ -255,7 +243,9 @@ describe('auth/utils', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         },
-      } as any)
+      }
+
+      vi.mocked(auth.api.signInEmail).mockResolvedValue(mockResult as any)
 
       const result = await signIn('test@example.com', 'password123')
 

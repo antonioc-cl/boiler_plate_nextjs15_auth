@@ -1,0 +1,42 @@
+# Coverage configuration for Better Auth Next.js boilerplate
+# This file defines which files should be excluded from coverage reporting
+
+[run]
+# Files to exclude from coverage
+omit = 
+    */node_modules/*
+    */coverage/*
+    */dist/*
+    */.next/*
+    */playwright-report/*
+    */tests/*
+    */docs/*
+    */specs/*
+    */emails/components/*
+    */emails/examples/*
+    */emails/translations/*
+    */lib/db/migrations/*
+    */lib/db/migrate*.ts
+    */app/api/auth/[...all]/route.ts
+    */sentry.*.config.ts
+    */*.d.ts
+    */*.config.*
+    */mockData.ts
+    */test-utils.tsx
+    */setup.ts
+    */*.spec.ts
+    */*.spec.tsx
+
+[report]
+# Reporting options
+precision = 2
+show_missing = true
+skip_covered = false
+
+[html]
+# HTML report configuration
+directory = coverage/html
+
+[xml]
+# XML report configuration  
+output = coverage/coverage.xml

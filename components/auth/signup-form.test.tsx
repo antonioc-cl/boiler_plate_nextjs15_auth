@@ -172,12 +172,14 @@ describe('SignupForm', () => {
     const user = userEvent.setup()
     render(<SignupForm />)
 
+    const nameInput = screen.getByLabelText('Name')
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
 
-    // Enter valid email and password
+    // Enter valid name, email and password
+    await user.type(nameInput, 'John Doe')
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'Password123')
 
@@ -363,12 +365,14 @@ describe('SignupForm', () => {
     } as any)
     render(<SignupForm />)
 
+    const nameInput = screen.getByLabelText('Name')
     const emailInput = screen.getByLabelText('Email')
     const passwordInput = screen.getByLabelText('Password')
     const confirmPasswordInput = screen.getByLabelText(/confirm password/i)
     const submitButton = screen.getByRole('button', { name: /create account/i })
 
     // First submission - should show error
+    await user.type(nameInput, 'John Doe')
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'Password123')
     await user.type(confirmPasswordInput, 'Password123')
@@ -434,9 +438,15 @@ describe('SignupForm', () => {
     await user.type(passwordInput, 'Password123')
     await user.type(confirmPasswordInput, 'Password123')
 
-    // Click multiple times quickly
+    // Click once to start submission
     await user.click(submitButton)
-    await user.click(submitButton)
+    
+    // Button should be disabled during submission
+    await waitFor(() => {
+      expect(submitButton).toBeDisabled()
+    })
+
+    // Try clicking again while disabled - should not trigger another submission
     await user.click(submitButton)
 
     // Should only call signUp once
