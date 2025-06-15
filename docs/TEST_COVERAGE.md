@@ -9,8 +9,9 @@ The project uses Vitest with v8 coverage provider to ensure comprehensive test c
 ## Coverage Thresholds
 
 ### Global Thresholds
+
 - **Branches**: 70%
-- **Functions**: 70% 
+- **Functions**: 70%
 - **Lines**: 70%
 - **Statements**: 70%
 
@@ -26,6 +27,7 @@ Critical authentication components have higher coverage requirements:
 ## Coverage Reports
 
 The following report formats are generated:
+
 - **Text**: Console output during test runs
 - **HTML**: Interactive report at `./coverage/index.html`
 - **JSON**: Machine-readable format at `./coverage/coverage-final.json`
@@ -36,6 +38,7 @@ The following report formats are generated:
 The following files are excluded from coverage calculations:
 
 ### Infrastructure & Configuration
+
 - `node_modules/`, `dist/`, `.next/`, `coverage/`
 - `**/*.d.ts`, `**/*.config.*`
 - `sentry.*.config.ts`
@@ -43,16 +46,19 @@ The following files are excluded from coverage calculations:
 - `lib/auth/config.ts` (configuration file)
 
 ### Testing & Documentation
+
 - `src/test/`, `**/test-utils.tsx`, `**/setup.ts`
 - `tests/` (E2E tests), `docs/`, `specs/`
 - `**/*.spec.ts`, `**/*.spec.tsx`
 
 ### Generated & Migration Files
+
 - `lib/db/migrations/**`
 - `lib/db/migrate*.ts`
 - `app/api/auth/[...all]/route.ts` (Better Auth route handler)
 
 ### Email Templates & Examples
+
 - `emails/components/**`
 - `emails/examples/**`
 - `emails/translations/**`
@@ -79,6 +85,7 @@ pnpm e2e
 ## CI Integration
 
 The GitHub Actions workflow automatically:
+
 1. Runs unit tests with coverage
 2. Uploads coverage reports to Codecov
 3. Fails the build if coverage thresholds are not met
@@ -89,6 +96,7 @@ The GitHub Actions workflow automatically:
 The following Better Auth components have comprehensive test coverage:
 
 ### Core Authentication (`lib/auth/`)
+
 - ✅ **utils.ts**: Password hashing, user creation, sign in/out
 - ✅ **server.ts**: Session management, authentication checks
 - ✅ **middleware-helpers.ts**: Route protection, user retrieval
@@ -96,10 +104,12 @@ The following Better Auth components have comprehensive test coverage:
 - ✅ **client.ts**: Client-side authentication hooks
 
 ### Form Components (`components/auth/`)
+
 - ✅ **login-form.tsx**: Login form validation and submission
 - ✅ **signup-form.tsx**: Registration form validation and submission
 
 ### Server Actions (`app/actions/`)
+
 - ✅ **auth.ts**: Authentication actions and validations
 
 ## Monitoring Coverage
@@ -122,6 +132,7 @@ Coverage reports are generated on every test run. To monitor coverage trends:
 ## Coverage Goals
 
 The current coverage configuration balances thoroughness with practicality:
+
 - Critical authentication code requires 85-90% coverage
 - Supporting infrastructure requires 70% coverage
 - Configuration and generated files are excluded to focus on business logic

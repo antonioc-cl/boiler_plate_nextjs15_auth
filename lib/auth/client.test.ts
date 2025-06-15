@@ -30,7 +30,7 @@ describe('auth/client', () => {
 
   it('should create auth client with custom app URL', async () => {
     process.env.NEXT_PUBLIC_APP_URL = 'https://myapp.com'
-    
+
     // Dynamic import to get fresh module instance
     const { authClient } = await import('./client')
 
@@ -50,7 +50,7 @@ describe('auth/client', () => {
 
   it('should create auth client with default URL when env var is not set', async () => {
     delete process.env.NEXT_PUBLIC_APP_URL
-    
+
     // Dynamic import to get fresh module instance
     const { authClient } = await import('./client')
 
@@ -62,14 +62,14 @@ describe('auth/client', () => {
   })
 
   it('should export all auth methods', async () => {
-    const { 
+    const {
       signIn,
       signUp,
       signOut,
       useSession,
       forgetPassword,
       resetPassword,
-      verifyEmail
+      verifyEmail,
     } = await import('./client')
 
     expect(signIn).toBeDefined()

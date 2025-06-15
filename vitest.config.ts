@@ -48,7 +48,7 @@ export default defineConfig({
         'lib/db/migrate*.ts',
         'app/api/auth/[...all]/route.ts', // Better Auth route handler
         'lib/auth/better-auth.ts', // Configuration file
-        'lib/auth/config.ts', // Configuration file  
+        'lib/auth/config.ts', // Configuration file
         'sentry.*.config.ts',
       ],
       thresholds: {

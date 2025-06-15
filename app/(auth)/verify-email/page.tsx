@@ -193,9 +193,7 @@ function LoadingFallback() {
           <CardTitle className="text-2xl font-bold">
             Email Verification
           </CardTitle>
-          <CardDescription>
-            Loading...
-          </CardDescription>
+          <CardDescription>Loading...</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex justify-center">

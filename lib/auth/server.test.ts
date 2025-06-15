@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getSession, getCurrentUser, requireAuth, requireVerifiedEmail, signOut } from './server'
+import {
+  getSession,
+  getCurrentUser,
+  requireAuth,
+  requireVerifiedEmail,
+  signOut,
+} from './server'
 import { auth } from './better-auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -174,7 +180,9 @@ describe('auth/server', () => {
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any)
 
-      await expect(requireVerifiedEmail()).rejects.toThrow('NEXT_REDIRECT:/verify-email')
+      await expect(requireVerifiedEmail()).rejects.toThrow(
+        'NEXT_REDIRECT:/verify-email'
+      )
 
       expect(redirect).toHaveBeenCalledWith('/verify-email')
     })

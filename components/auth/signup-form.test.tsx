@@ -440,7 +440,7 @@ describe('SignupForm', () => {
 
     // Click once to start submission
     await user.click(submitButton)
-    
+
     // Button should be disabled during submission
     await waitFor(() => {
       expect(submitButton).toBeDisabled()

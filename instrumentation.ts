@@ -2,18 +2,18 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     // Server-side initialization
     const { init } = await import('@sentry/nextjs')
-    
+
     const dsn = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
     if (dsn) {
       init({
         dsn,
-        
+
         // Performance Monitoring
         tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-        
+
         // Release tracking
         environment: process.env.NODE_ENV,
-        
+
         // Before send hook to filter out sensitive data
         beforeSend(event, hint) {
           // Filter out events in development unless explicitly enabled
@@ -23,7 +23,7 @@ export async function register() {
           ) {
             return null
           }
-          
+
           // Don't send events for certain errors
           const error = hint.originalException
           if (error && error instanceof Error) {
@@ -32,7 +32,7 @@ export async function register() {
               return null
             }
           }
-          
+
           return event
         },
       })
@@ -42,18 +42,18 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'edge') {
     // Edge runtime initialization
     const { init } = await import('@sentry/nextjs')
-    
+
     const dsn = process.env.SENTRY_DSN || process.env.NEXT_PUBLIC_SENTRY_DSN
     if (dsn) {
       init({
         dsn,
-        
+
         // Performance Monitoring
         tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-        
+
         // Release tracking
         environment: process.env.NODE_ENV,
-        
+
         // Before send hook to filter out sensitive data
         beforeSend(event, _hint) {
           // Filter out events in development unless explicitly enabled
@@ -63,7 +63,7 @@ export async function register() {
           ) {
             return null
           }
-          
+
           return event
         },
       })
@@ -71,8 +71,12 @@ export async function register() {
   }
 }
 
-// Export the required error handler for nested React Server Components  
-export const onRequestError = async (error: unknown, request: Request, context?: { routerKind?: string; routePath?: string }) => {
+// Export the required error handler for nested React Server Components
+export const onRequestError = async (
+  error: unknown,
+  request: Request,
+  context?: { routerKind?: string; routePath?: string }
+) => {
   const { captureException } = await import('@sentry/nextjs')
   captureException(error, {
     tags: {

@@ -43,7 +43,8 @@ describe('auth/email', () => {
       expect(EmailVerificationEmail).toHaveBeenCalledWith({
         name: 'test',
         email: 'test@example.com',
-        verificationUrl: 'https://example.com/api/auth/verify-email?token=verification-token-123',
+        verificationUrl:
+          'https://example.com/api/auth/verify-email?token=verification-token-123',
         expirationHours: 24,
       })
 
@@ -61,9 +62,10 @@ describe('auth/email', () => {
       await sendVerificationEmail(email, token)
 
       expect(EmailVerificationEmail).toHaveBeenCalledWith({
-        name: 'invalid-email',  // split('@')[0] returns the whole string if no @ found
+        name: 'invalid-email', // split('@')[0] returns the whole string if no @ found
         email: 'invalid-email',
-        verificationUrl: 'https://example.com/api/auth/verify-email?token=verification-token-123',
+        verificationUrl:
+          'https://example.com/api/auth/verify-email?token=verification-token-123',
         expirationHours: 24,
       })
     })
@@ -77,7 +79,8 @@ describe('auth/email', () => {
       expect(EmailVerificationEmail).toHaveBeenCalledWith({
         name: 'there',
         email: '@example.com',
-        verificationUrl: 'https://example.com/api/auth/verify-email?token=verification-token-123',
+        verificationUrl:
+          'https://example.com/api/auth/verify-email?token=verification-token-123',
         expirationHours: 24,
       })
     })
@@ -125,7 +128,7 @@ describe('auth/email', () => {
       await sendPasswordResetEmail(email, token)
 
       expect(PasswordResetEmail).toHaveBeenCalledWith({
-        name: 'there',  // fallback when email.split('@')[0] is empty
+        name: 'there', // fallback when email.split('@')[0] is empty
         email: '@example.com',
         resetUrl: 'https://example.com/reset-password?token=reset-token-456',
         expirationHours: 1,
