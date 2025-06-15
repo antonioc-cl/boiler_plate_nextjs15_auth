@@ -55,7 +55,8 @@ describe('utils', () => {
     })
 
     it('should handle boolean false values', () => {
-      const result = cn('base', false && 'conditional', 'end')
+      const condition = false
+      const result = cn('base', condition && 'conditional', 'end')
       expect(result).toBe('base end')
     })
   })

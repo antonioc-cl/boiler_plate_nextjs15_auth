@@ -61,7 +61,16 @@ jobs:
           # Required for build, can be dummy values in CI
           DATABASE_URL: "postgresql://test:test@localhost:5432/test"
           NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+          BETTER_AUTH_SECRET: "test-secret-for-ci-build-123456789"
+          BETTER_AUTH_URL: "http://localhost:3000"
           PLUNK_API_KEY: "dummy-key-for-build"
+          PLUNK_FROM_EMAIL: "test@example.com"
+          PLUNK_REPLY_TO_EMAIL: "test@example.com"
+          NEXT_PUBLIC_APP_NAME: "Test App"
+          EMAIL_VERIFICATION_REQUIRED: "false"
+          NEXT_PUBLIC_ENABLE_ANALYTICS: "false"
+          NEXT_PUBLIC_ENABLE_SENTRY: "false"
+          SENTRY_SUPPRESS_INSTRUMENTATION_FILE_WARNING: "1"
 
   e2e:
     name: E2E Tests
@@ -95,7 +104,16 @@ jobs:
           # Required for E2E tests
           DATABASE_URL: "postgresql://test:test@localhost:5432/test"
           NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+          BETTER_AUTH_SECRET: "test-secret-for-e2e-tests-123456789"
+          BETTER_AUTH_URL: "http://localhost:3000"
           PLUNK_API_KEY: "dummy-key-for-e2e"
+          PLUNK_FROM_EMAIL: "test@example.com"
+          PLUNK_REPLY_TO_EMAIL: "test@example.com"
+          NEXT_PUBLIC_APP_NAME: "Test App"
+          EMAIL_VERIFICATION_REQUIRED: "false"
+          NEXT_PUBLIC_ENABLE_ANALYTICS: "false"
+          NEXT_PUBLIC_ENABLE_SENTRY: "false"
+          SENTRY_SUPPRESS_INSTRUMENTATION_FILE_WARNING: "1"
 
       - name: Upload Playwright report
         if: failure()

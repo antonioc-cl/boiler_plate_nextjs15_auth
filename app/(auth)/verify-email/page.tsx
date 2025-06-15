@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useFormState, useFormStatus } from 'react-dom'
@@ -47,7 +47,7 @@ async function resendEmailAction(
   return resendVerificationEmail()
 }
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const token = searchParams.get('token')
@@ -182,5 +182,35 @@ export default function VerifyEmailPage() {
         </CardFooter>
       </Card>
     </div>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4 py-12">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold">
+            Email Verification
+          </CardTitle>
+          <CardDescription>
+            Loading...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <VerifyEmailContent />
+    </Suspense>
   )
 }

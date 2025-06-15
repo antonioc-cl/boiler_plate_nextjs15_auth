@@ -38,3 +38,6 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     },
   })
 }
+
+// Export the required hooks for Next.js instrumentation
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart
