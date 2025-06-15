@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { sendVerificationEmail, sendPasswordResetEmail } from './email'
 import { sendEmail } from '@/lib/email/send-email'
 import EmailVerificationEmail from '@/emails/email-verification'

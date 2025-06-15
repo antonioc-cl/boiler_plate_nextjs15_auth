@@ -31,8 +31,10 @@ describe('auth/server', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(headers).mockResolvedValue(new Headers())
-    // Reset redirect mock to not throw by default
-    vi.mocked(redirect).mockImplementation(() => {})
+    // Reset redirect mock to throw (like real Next.js redirect)
+    vi.mocked(redirect).mockImplementation((url: string) => {
+      throw new Error(`NEXT_REDIRECT:${url}`)
+    })
   })
 
   describe('getSession', () => {
@@ -130,8 +132,7 @@ describe('auth/server', () => {
     it('should redirect to sign-in when not authenticated', async () => {
       vi.mocked(auth.api.getSession).mockResolvedValue(null as any)
 
-      await requireAuth()
-
+      await expect(requireAuth()).rejects.toThrow('NEXT_REDIRECT:/sign-in')
       expect(redirect).toHaveBeenCalledWith('/sign-in')
     })
   })
@@ -173,7 +174,7 @@ describe('auth/server', () => {
 
       vi.mocked(auth.api.getSession).mockResolvedValue(mockSession as any)
 
-      await requireVerifiedEmail()
+      await expect(requireVerifiedEmail()).rejects.toThrow('NEXT_REDIRECT:/verify-email')
 
       expect(redirect).toHaveBeenCalledWith('/verify-email')
     })

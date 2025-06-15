@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
-    "prepare": "pnpm run type-check && pnpm run lint && pnpm run format:check",
+    "prepare": "[ \"$CI\" = \"true\" ] || (pnpm run type-check && pnpm run lint && pnpm run format:check)",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",

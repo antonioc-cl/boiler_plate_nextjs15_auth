@@ -34,8 +34,10 @@ describe('auth/middleware-helpers', () => {
     vi.mocked(headers).mockResolvedValue(new Headers())
     // Reset console.warn mock
     vi.spyOn(console, 'warn').mockImplementation(() => {})
-    // Reset redirect mock to not throw by default
-    vi.mocked(redirect).mockImplementation(() => {})
+    // Reset redirect mock to throw (like real Next.js redirect)
+    vi.mocked(redirect).mockImplementation((url: string) => {
+      throw new Error(`NEXT_REDIRECT:${url}`)
+    })
   })
 
   describe('requireAuth', () => {
