@@ -1,35 +1,45 @@
-# Development Session Status
+# @status
 
-READ current session from `.claude/sessions/.current-session`.
+Check current development session status and progress.
 
-IF no active session:
+## Usage
 ```
-## No Active Session
-No development session currently active.
-
-**Start a new session with:** `/start [your goal description]`
-
-**View previous sessions with:** `/memory`
+@status
 ```
 
-IF active session exists:
-READ session file and DISPLAY:
-```
-## Active Development Session
+## Actions
+1. Read current PROJECT_STATUS.md
+2. Display active tasks and their status
+3. Show session duration and progress metrics
+4. List recent changes
 
-**Goal**: [session goal from file]
-**Started**: [start time] ([duration so far])
-**Session File**: [filename]
+## Template
 
-### Recent Progress
-[Show last 2-3 progress updates from session file]
+## Current Session Status
 
-### Current Git State
-[Run: git status --porcelain]
+### Active Session
+- Project: [Project name from .claude_session]
+- Started: [Session start time]
+- Duration: [Time elapsed]
 
-### Modified Files This Session
-[Run: find . -newer [session file] -name "*.js" -o -name "*.ts" -o -name "*.tsx" -o -name "*.json"]
+### Task Progress
+- [ ] In Progress: [Current active task]
+- [x] Completed: [Number of completed tasks]
+- [ ] Pending: [Number of pending tasks]
+
+### Recent Activity
+- [Last 5 notes/changes with timestamps]
+
+### Git Status
+- Current branch: [Branch name]
+- Uncommitted changes: [File count]
+- Last commit: [Commit message and time]
 
 ### Next Steps
-Use `/note [description]` to log progress or `/end` to finalize session
-```
+- [Immediate next action]
+- [Upcoming tasks]
+
+## Notes
+- Provides quick overview of session progress
+- Helps reorient after breaks
+- Useful for status updates

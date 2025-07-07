@@ -1,188 +1,146 @@
-# Generate Product Requirements Prompt
+# @generate-prp
 
-ARGUMENTS: Analysis file from /analyze-prd (e.g., /generate-prp analysis/prd_analysis_auth.md)
+Generate a detailed Precise Requirements Plan for a specific component or feature.
 
-READ:
-- Analysis file for comprehensive technical research
-- CLAUDE.md for project context and maximum sub-agent guidelines
-- docs/ directory for architecture patterns
-- examples/ for existing code patterns
+## Usage
+```
+@generate-prp "Component Name"
+```
 
-DEPLOY MAXIMUM sub-agents for detailed implementation planning (8-12 agents):
+## Actions
+1. Extract relevant requirements from PRD
+2. Define precise technical specifications
+3. Create implementation roadmap
+4. Specify test criteria
+5. Document in PRP format
 
-**Agent 1 - API Design & Backend Architecture Specialist:**
-- Design comprehensive API structure and endpoints
-- Research authentication and authorization patterns
-- Plan server actions and backend service architecture
+## Template
 
-**Agent 2 - Database Design & Migration Specialist:**
-- Design detailed database schema and relationships
-- Plan migration strategy and data modeling
-- Research performance optimization and indexing
+Generating Precise Requirements Plan for: {COMPONENT_NAME}
 
-**Agent 3 - Frontend Architecture & Component Specialist:**
-- Design component hierarchy and reusable patterns
-- Plan state management and data flow architecture
-- Research UI frameworks and interaction patterns
+# PRP: {COMPONENT_NAME}
 
-**Agent 4 - Authentication & Security Implementation Specialist:**
-- Research advanced security patterns and implementation
-- Plan authentication flows and session management
-- Design authorization and permission systems
+## Overview
+**Component**: {COMPONENT_NAME}
+**Priority**: [High/Medium/Low]
+**Estimated Effort**: [X days]
+**Dependencies**: [List dependencies]
 
-**Agent 5 - Testing & Quality Assurance Implementation Specialist:**
-- Design comprehensive testing strategy (unit, integration, E2E)
-- Plan test data management and mocking strategies
-- Research testing frameworks and quality metrics
+## Objectives
+1. [Primary objective]
+2. [Secondary objective]
+3. [Success criteria]
 
-**Agent 6 - Performance & Optimization Implementation Specialist:**
-- Plan performance optimization strategies
-- Research caching, bundling, and load optimization
-- Design monitoring and performance measurement
+## Technical Specifications
 
-**Agent 7 - User Experience & Accessibility Implementation Specialist:**
-- Design detailed user flows and interaction patterns
-- Plan accessibility compliance and inclusive design
-- Research responsive design and mobile optimization
+### Architecture
+- **Pattern**: [MVC/Microservice/etc]
+- **Technologies**: [Specific stack]
+- **Integration Points**: [APIs/Services]
 
-**Agent 8 - Documentation & Developer Experience Specialist:**
-- Plan comprehensive documentation strategy
-- Design API documentation and code examples
-- Plan developer onboarding and knowledge transfer
+### Data Model
+```typescript
+interface {ModelName} {
+  id: string;
+  // ... fields
+}
+```
 
-**Agent 9 - DevOps & Deployment Specialist:**
-- Plan deployment strategy and CI/CD pipeline
-- Research infrastructure requirements and scaling
-- Design monitoring, logging, and error tracking
+### API Endpoints (if applicable)
+```
+POST   /api/{resource}     - Create
+GET    /api/{resource}     - List
+GET    /api/{resource}/:id - Read
+PUT    /api/{resource}/:id - Update
+DELETE /api/{resource}/:id - Delete
+```
 
-**Agent 10 - Integration & Third-party Implementation Specialist:**
-- Plan detailed third-party service integrations
-- Research API client implementations and error handling
-- Design webhook handling and event processing
-
-**Agent 11 - Error Handling & Resilience Specialist:**
-- Design comprehensive error handling strategies
-- Plan fallback mechanisms and graceful degradation
-- Research monitoring and alerting systems
-
-**Agent 12 - Business Logic & Domain Implementation Specialist:**
-- Plan complex business logic implementation
-- Design domain models and business rules
-- Research workflow automation and business processes
-
-WAIT for ALL agents to complete detailed research and planning.
-
-SYNTHESIZE all agent findings into comprehensive implementation roadmap.
-
-CREATE detailed PRP file in `PRPS/`:
-`PRPS/prp_$(date +%Y%m%d_%H%M)_[feature-name].md`
-
-**PRP Structure:**
-```markdown
-# Product Requirements Prompt - [Feature Name]
-
-## Executive Summary
-[High-level feature description and business value from all agent perspectives]
-
-## Multi-Agent Research Summary
-### Technology Stack Analysis
-- [Current stack compatibility findings from all agents]
-- [Required new dependencies identified by specialists]
-- [Performance implications from optimization agent]
-
-### API Research
-- [External APIs needed per integration specialist]
-- [Authentication requirements from security agent]
-- [Rate limiting considerations from performance agent]
-
-### Database Analysis
-- [Schema changes from database specialist]
-- [Migration complexity assessment]
-- [Data relationships and optimization strategies]
-
-## Implementation Architecture
-
-### Backend Components
-- [Server actions from backend architect]
-- [API routes from API design specialist]
-- [Database models from data specialist]
-- [Authentication integration from security specialist]
-
-### Frontend Components
-- [Pages to create/modify from frontend specialist]
-- [Components from component architect]
-- [State management from frontend specialist]
-- [Form handling from UX specialist]
-
-### Integration Points
-- [Third-party services from integration specialist]
-- [Email system integration details]
-- [File upload handling specifications]
-- [Webhook and event processing plans]
-
-## Detailed Technical Specifications
-
-### Database Schema
-[Comprehensive schema from database specialist with performance considerations]
-
-### API Endpoints
-[Detailed specifications from API architect with security annotations]
-
-### Component Specifications
-[Component architecture from frontend specialist with accessibility notes]
+### Component Structure
+```
+{component}/
+├── index.ts
+├── {component}.component.ts
+├── {component}.service.ts
+├── {component}.types.ts
+└── {component}.test.ts
+```
 
 ## Implementation Plan
 
-### Phase 1: Foundation
-- [ ] Database schema setup (Database specialist plan)
-- [ ] Basic API structure (API architect plan)
-- [ ] Authentication integration (Security specialist plan)
+### Step 1: Setup and Structure
+- [ ] Create component directory
+- [ ] Set up base files
+- [ ] Define interfaces/types
+- [ ] Configure routes
 
-### Phase 2: Core Features
-- [ ] Main functionality implementation (Domain specialist plan)
-- [ ] Frontend components (Frontend specialist plan)
-- [ ] Form validation (UX specialist plan)
+### Step 2: Core Implementation
+- [ ] Implement service layer
+- [ ] Create component logic
+- [ ] Add state management
+- [ ] Implement UI
 
-### Phase 3: Integration & Testing
-- [ ] End-to-end integration (Integration specialist plan)
-- [ ] Comprehensive testing (QA specialist plan)
-- [ ] Error handling (Resilience specialist plan)
+### Step 3: Integration
+- [ ] Connect to backend
+- [ ] Add error handling
+- [ ] Implement loading states
+- [ ] Add validation
 
-### Phase 4: Optimization & Deployment
-- [ ] Performance optimization (Performance specialist plan)
-- [ ] Deployment setup (DevOps specialist plan)
-- [ ] Documentation (Documentation specialist plan)
+### Step 4: Testing
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] E2E test scenarios
+- [ ] Performance testing
 
-## Success Criteria
-- [ ] [Specific measurable outcomes from all specialists]
-- [ ] [Performance requirements from optimization agent]
-- [ ] [User experience goals from UX specialist]
-- [ ] [Security compliance from security agent]
+## Acceptance Criteria
+1. **Functional**
+   - [ ] [Criterion 1]
+   - [ ] [Criterion 2]
+   
+2. **Performance**
+   - [ ] Loads within Xs
+   - [ ] Handles N concurrent users
+   
+3. **Security**
+   - [ ] Input validation
+   - [ ] Authorization checks
+   
+4. **UX**
+   - [ ] Responsive design
+   - [ ] Accessibility compliance
 
-## Testing Strategy
-- [ ] Unit tests for utilities (QA specialist)
-- [ ] Integration tests for API (Backend specialist)
-- [ ] E2E tests for user flows (QA specialist)
-- [ ] Performance testing (Performance specialist)
-- [ ] Security testing (Security specialist)
+## Test Scenarios
+1. **Happy Path**
+   - User performs expected action
+   - System responds correctly
+   
+2. **Error Cases**
+   - Invalid input handling
+   - Network failure recovery
+   
+3. **Edge Cases**
+   - Boundary conditions
+   - Concurrent operations
 
 ## Documentation Requirements
-- [ ] API documentation (Documentation specialist)
-- [ ] Component documentation (Frontend specialist)
-- [ ] User guide updates (UX specialist)
-- [ ] Developer onboarding (Documentation specialist)
+- [ ] API documentation
+- [ ] Component usage guide
+- [ ] Configuration options
+- [ ] Troubleshooting guide
 
-## Risk Mitigation
-[Comprehensive risk analysis from all specialist perspectives]
+## Definition of Done
+- [ ] All acceptance criteria met
+- [ ] Tests passing (>90% coverage)
+- [ ] Code reviewed and approved
+- [ ] Documentation complete
+- [ ] Deployed to staging
 
-## Potential Risks & Mitigation
-- [Technical risks from all agents]
-- [Timeline risks from project planning]
-- [Integration risks from integration specialist]
-- [Security risks from security agent]
-- [Performance risks from optimization specialist]
-```
+---
 
-INCLUDE comprehensive synthesis from all specialist perspectives.
+PRP saved to: `prp/{component_name}_prp.md`
 
-LOG PRP creation with multi-agent approach summary to current session.
+Ready to execute this PRP with @execute-prp.
+
+## Notes
+- Each PRP is self-contained
+- Provides clear implementation path
+- Enables accurate progress tracking

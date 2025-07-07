@@ -1,68 +1,86 @@
-# Analyze Product Requirements Document
+# @analyze-prd
 
-ARGUMENTS: PRD file path (e.g., /analyze-prd docs/prd-auth-system.md)
+Analyze a Product Requirements Document to extract key requirements and technical considerations.
 
-READ the PRD file completely and perform multi-agent analysis.
+## Usage
+```
+@analyze-prd
+```
 
-DEPLOY MAXIMUM sub-agents for comprehensive PRD analysis (6-10 agents):
+## Actions
+1. Parse PRD for functional requirements
+2. Identify technical requirements
+3. Extract constraints and dependencies
+4. Map out component architecture
+5. Identify potential challenges
 
-**Agent 1 - Business Requirements Analyst:**
-- Extract and analyze user stories and acceptance criteria
-- Identify business goals, success metrics, and KPIs
-- Assess priority levels and timeline requirements
+## Template
 
-**Agent 2 - Technical Feasibility Researcher:**
-- Analyze current architecture compatibility
-- Research required dependencies, tools, and frameworks
-- Identify potential technical blockers and limitations
+I'll analyze the Product Requirements Document to extract key information.
 
-**Agent 3 - Implementation Scope Architect:**
-- Break down requirements into technical components
-- Design high-level system architecture
-- Identify API requirements and data flow implications
+## PRD Analysis
 
-**Agent 4 - Database & Backend Specialist:**
-- Analyze database schema implications and requirements
-- Plan backend services and server action needs
-- Assess data modeling and migration complexity
+### Project Overview
+- **Name**: [Project name]
+- **Goal**: [Primary objective]
+- **Scope**: [Boundaries and limitations]
 
-**Agent 5 - Frontend & UX Analyst:**
-- Research UI/UX patterns and component requirements
-- Analyze user interaction flows and interface needs
-- Plan frontend architecture and state management
+### Functional Requirements
+1. **Core Features**
+   - [Feature 1]: [Description]
+   - [Feature 2]: [Description]
+   
+2. **User Stories**
+   - As a [user], I want [feature] so that [benefit]
 
-**Agent 6 - Security & Compliance Auditor:**
-- Identify security requirements and compliance needs
-- Research authentication and authorization implications
-- Assess data privacy and protection requirements
+### Technical Requirements
+1. **Architecture**
+   - Frontend: [Technologies/frameworks]
+   - Backend: [Technologies/frameworks]
+   - Database: [Type and requirements]
+   
+2. **Performance**
+   - Load time: [Requirements]
+   - Concurrent users: [Requirements]
+   
+3. **Security**
+   - Authentication: [Requirements]
+   - Authorization: [Requirements]
+   - Data protection: [Requirements]
 
-**Agent 7 - Performance & Scalability Planner:**
-- Analyze performance requirements and constraints
-- Research scalability implications and optimization needs
-- Assess infrastructure and deployment considerations
+### Constraints
+- Timeline: [Deadlines]
+- Budget: [If applicable]
+- Technical: [Limitations]
+- Compliance: [Regulations]
 
-**Agent 8 - Testing & Quality Assurance Strategist:**
-- Plan comprehensive testing strategy for requirements
-- Identify quality assurance and validation needs
-- Design acceptance testing and user validation approaches
+### Dependencies
+- External APIs: [List]
+- Third-party services: [List]
+- Internal systems: [List]
 
-**Agent 9 - Integration & Third-party Service Researcher:**
-- Research external service integrations and APIs
-- Analyze third-party dependencies and requirements
-- Assess vendor selection and integration complexity
+### Component Breakdown
+1. **Frontend Components**
+   - [Component]: [Responsibility]
+   
+2. **Backend Services**
+   - [Service]: [Responsibility]
+   
+3. **Data Models**
+   - [Model]: [Purpose]
 
-**Agent 10 - Risk & Timeline Assessment Specialist:**
-- Identify project risks and potential failure points
-- Assess realistic timeline and resource requirements
-- Develop contingency plans and mitigation strategies
+### Risk Analysis
+- **Technical Risks**: [Identified challenges]
+- **Mitigation Strategies**: [Approaches]
 
-WAIT for ALL agents to complete comprehensive analysis.
+### Next Steps
+1. Generate comprehensive task plan
+2. Create individual PRPs for each component
+3. Establish development priorities
 
-SYNTHESIZE all findings into unified technical analysis.
+PRD analysis complete. Ready to generate task plan.
 
-CREATE comprehensive analysis file:
-`analysis/prd_analysis_$(date +%Y%m%d_%H%M)_[feature-name].md`
-
-INCLUDE synthesis from all agent perspectives with detailed recommendations.
-
-OUTPUT summary with confidence assessment and recommendation for PRP generation.
+## Notes
+- Thorough analysis prevents missing requirements
+- Identifies technical decisions early
+- Forms basis for all subsequent planning

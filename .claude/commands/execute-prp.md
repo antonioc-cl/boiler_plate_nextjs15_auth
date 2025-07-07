@@ -1,76 +1,84 @@
-# Execute Product Requirements Prompt
+# @execute-prp
 
-ARGUMENTS: PRP file path (e.g., /execute-prp PRPS/prp_auth_system.md)
+Execute the current PRP with systematic implementation.
 
-READ PRP file completely for full context.
+## Usage
+```
+@execute-prp
+```
 
-**EXECUTION PHASES:**
+## Actions
+1. Load current PRP
+2. Set up implementation environment
+3. Execute step-by-step implementation
+4. Run tests after each step
+5. Update progress tracking
 
-**Phase 1: Pre-execution Validation**
-- Verify all requirements are clear
-- Check environment setup
-- Validate dependencies are available
-- Confirm database connectivity
+## Template
 
-**Phase 2: Foundation Setup**
-- Install new dependencies
-- Run database migrations
-- Create basic file structure
-- Set up configuration
+Executing PRP: {COMPONENT_NAME}
 
-**Phase 3: Systematic Implementation**
-Follow PRP implementation plan step by step:
+## Implementation Progress
 
-1. **Database Layer**
-   - Create/modify schemas
-   - Set up relationships
-   - Create seed data if needed
+### Current Status
+- PRP: {component_name}_prp.md
+- Step: [Current step]
+- Progress: [X/Y tasks completed]
 
-2. **Backend Implementation**
-   - Create server actions
-   - Set up API routes
-   - Implement business logic
-   - Add authentication integration
+### Step Execution
 
-3. **Frontend Implementation**
-   - Create/modify pages
-   - Build components
-   - Implement forms and validation
-   - Set up state management
+#### Step 1: Setup and Structure ✓
+```bash
+# Created directory structure
+mkdir -p src/components/{component}
+```
 
-4. **Integration**
-   - Connect frontend to backend
-   - Test data flow
-   - Implement error handling
+Created files:
+- `index.ts` - Component exports
+- `{component}.component.ts` - Main component
+- `{component}.types.ts` - Type definitions
 
-**Phase 4: Testing & Validation**
-- Run unit tests (create if needed)
-- Run integration tests
-- Manual testing of user flows
-- Performance testing
+#### Step 2: Core Implementation (In Progress)
+Implementing service layer...
 
-**Phase 5: Documentation**
-- Update API documentation
-- Document new components
-- Update README if needed
+```typescript
+// {component}.service.ts
+export class {Component}Service {
+  // Implementation
+}
+```
 
-**CONTINUOUS VALIDATION:**
-After each major step:
-- Run tests to ensure nothing breaks
-- Check code follows project conventions
-- Verify performance isn't degraded
-- Log progress with /note command
+**Test Results**:
+- ✓ Service instantiation
+- ✓ Data fetching
+- ⏳ Error handling
 
-**PROGRESS TRACKING:**
-- Log completion of each phase
-- Document any deviations from plan
-- Record problems encountered and solutions
-- Update session with key decisions
+### Code Quality Checks
+- [ ] Linting passed
+- [ ] Type checking passed
+- [ ] Unit tests passed
+- [ ] Integration tests passed
 
-**FINAL VERIFICATION:**
-- All success criteria from PRP met
-- Full test suite passes
-- Code follows project standards
-- Documentation is complete
+### Implementation Notes
+- Decision: Used [pattern] for [reason]
+- Challenge: [Issue encountered]
+- Solution: [How resolved]
 
-PROVIDE comprehensive summary of implementation with any recommendations for follow-up work.
+### Next Actions
+1. Complete error handling
+2. Add loading states
+3. Implement UI components
+
+### Blockers
+- None currently
+
+## Progress Update
+Updated PROJECT_STATUS.md with current progress.
+Current completion: 60%
+
+Continue with next step...
+
+## Notes
+- Systematic execution ensures quality
+- Regular testing catches issues early
+- Progress tracking maintains visibility

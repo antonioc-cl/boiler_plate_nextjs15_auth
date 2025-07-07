@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "initialized": "2025-07-06T10:00:00Z",
+  "contributors": [],
+  "team_metrics": {
+    "total_patterns": 0,
+    "success_rate": null,
+    "average_adoption_rate": null,
+    "knowledge_sharing_index": null
+  },
+  "expertise_map": {},
+  "collaboration_metrics": {
+    "cross_team_adoption": null,
+    "pattern_improvements": 0,
+    "shared_learnings": 0
+  }
+}

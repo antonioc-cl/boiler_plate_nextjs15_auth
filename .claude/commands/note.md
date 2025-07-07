@@ -1,30 +1,31 @@
-# Development Progress Note
+# @note
 
-ARGUMENTS: Progress description (required)
+Add timestamped progress notes to track development decisions and progress.
 
-READ current session from `.claude/sessions/.current-session`.
-
-APPEND to active session file under "## Progress Log":
+## Usage
 ```
-### Progress Update - $(date +%H:%M)
-$ARGUMENTS
-
-#### Current Status
-[Brief analysis of current development state]
-
-#### Files Modified Since Last Update
-[Run: git diff --name-only]
-
-#### Key Decisions Made
-[Important architectural or implementation decisions]
-
-#### Next Immediate Steps
-[What needs to be done next in this session]
+@note "Note content"
 ```
 
-ANALYZE current git state:
-- Show unstaged changes if any
-- Note any new files created
-- Check for any errors or warnings
+## Actions
+1. Add timestamped entry to PROJECT_STATUS.md
+2. Update .claude_session with latest status
+3. Optionally trigger a git commit for significant milestones
 
-CONFIRM progress has been logged to active session.
+## Template
+
+Adding progress note to PROJECT_STATUS.md:
+
+**[TIMESTAMP]**: {NOTE_CONTENT}
+
+## Context
+- Current task: [Current active task]
+- Impact: [How this affects the project]
+- Next action: [What happens next]
+
+Note added successfully.
+
+## Notes
+- Use for documenting important decisions
+- Helps maintain context across sessions
+- Creates audit trail of development process
