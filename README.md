@@ -14,7 +14,7 @@ A production-ready Next.js 15 boilerplate with TypeScript, authentication struct
 - **Better Auth** for authentication (email/password, OAuth, 2FA)
 - **TailwindCSS** for styling
 - **OXC & Prettier** for lightning-fast code quality checks
-- **Drizzle ORM** with PostgreSQL (Neon)
+- **Drizzle ORM** with PostgreSQL (any provider)
 - **Email integration** with Plunk and React Email
 - **Production-ready** directory structure
 - **Security headers** configured
@@ -57,6 +57,7 @@ A production-ready Next.js 15 boilerplate with TypeScript, authentication struct
 
 - Node.js 18+
 - pnpm (recommended) or npm/yarn
+- PostgreSQL database (see options below)
 
 ### Installation
 
@@ -72,6 +73,29 @@ A production-ready Next.js 15 boilerplate with TypeScript, authentication struct
    ```bash
    cp .env.example .env
    ```
+
+   For local development with Docker:
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+### Database Setup
+
+#### Option 1: Local Development with Docker (Recommended)
+
+1. Start PostgreSQL with Docker Compose:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. The database will be available at:
+   ```
+   postgresql://postgres:password@localhost:5432/myapp
+   ```
+
+#### Option 2: Cloud PostgreSQL Provider
+
+Choose any PostgreSQL provider and update your `.env` with the connection string. See the [Database Configuration](#database-configuration) section for provider-specific instructions.
 
 4. Update the `.env` file with your configuration
 
@@ -120,7 +144,7 @@ Custom theme configuration with CSS variables for easy theming. Dark mode ready.
 
 See `.env.example` for required environment variables:
 
-- `DATABASE_URL` - PostgreSQL connection string (Neon)
+- `DATABASE_URL` - PostgreSQL connection string
 - `BETTER_AUTH_SECRET` - Secret for Better Auth sessions
 - `PLUNK_API_KEY` - Email service API key
 - `NEXT_PUBLIC_APP_URL` - Your app's public URL
@@ -129,7 +153,7 @@ See `.env.example` for required environment variables:
 ## Production Checklist
 
 - [ ] Update environment variables
-- [ ] Configure database connection (Neon PostgreSQL)
+- [ ] Configure database connection (PostgreSQL)
 - [ ] Set up Better Auth secret and OAuth providers
 - [ ] Configure Plunk email service
 - [ ] Update security headers in `next.config.ts`
@@ -185,6 +209,184 @@ This boilerplate includes several GitHub Actions workflows to keep it up-to-date
 - **Weekly**: Dependency updates (Monday 9 AM UTC)
 - **Weekly**: Framework update checks (Sunday 6 AM UTC)
 - **Weekly**: Performance monitoring (Wednesday 10 AM UTC)
+
+## 🤖 Claude Code Integration
+
+This boilerplate includes full integration with Claude Code for AI-assisted development:
+
+### Features
+- **Pre-configured Commands**: Start, note-taking, status checks, and session documentation
+- **Complete AI Context**: Comprehensive project documentation for Claude
+- **Development Workflow**: TDD approach with automated tracking
+- **Session Management**: Automatic documentation of development sessions
+
+### Quick Start with Claude Code
+1. Install Claude Code from [claude.ai/code](https://claude.ai/code)
+2. Use the enhanced initialization script (see below)
+3. Open Claude Code in your project
+4. Run `/start` for complete project context
+
+### Available Commands
+- `/start` - Load complete project context and current state
+- `/note [message]` - Add timestamped notes to current session
+- `/status` - Quick project status and git state
+- `/end [summary]` - Create comprehensive session documentation
+- `/cleanup` - Clear current session
+
+### Enhanced Project Initialization
+Use the `claude-init-full` script for projects with this boilerplate:
+
+```bash
+# Setup once (copy this script to ~/.local/bin/claude-init-full)
+#!/bin/bash
+echo "🚀 Inicializando proyecto Next.js con boilerplate completo..."
+PROJECT_NAME=$(basename $(pwd))
+git clone https://github.com/antonioc-cl/boiler_plate_nextjs15_auth.git .
+rm -rf .git && git init
+sed -i '' "s/PROJECT_NAME/$PROJECT_NAME/g" CLAUDE.md package.json README.md
+echo "✅ Proyecto listo con contexto completo para Claude Code"
+```
+
+### Documentation Structure
+- `CLAUDE.md` - Complete AI development context
+- `docs/architecture.md` - System architecture and patterns
+- `docs/conventions.md` - Coding standards and conventions
+- `docs/getting-started.md` - Development workflow guide
+
+This integration ensures Claude has complete context about your Next.js 15 project from day one.
+
+---
+
+## Database Configuration
+
+### Supported PostgreSQL Providers
+This boilerplate works with any PostgreSQL provider:
+
+- **Local Development**: Docker Compose (included)
+- **Supabase**: Full-featured PostgreSQL with real-time
+- **PostgreSQL**: Any provider (local, cloud, or managed)
+- **Railway**: Simple deployment
+- **AWS RDS**: Enterprise PostgreSQL
+- **Google Cloud SQL**: Managed PostgreSQL
+
+### Environment Setup
+Update your `.env` file with your PostgreSQL connection string:
+
+```env
+# Generic PostgreSQL format
+DATABASE_URL="postgresql://username:password@host:port/database"
+
+# Supabase example
+DATABASE_URL="postgresql://postgres:[password]@db.[project].supabase.co:5432/postgres"
+
+# Local development
+DATABASE_URL="postgresql://postgres:password@localhost:5432/myapp"
+```
+
+## 🔄 Complete Development Workflow
+
+This boilerplate includes a comprehensive development workflow system that transforms Claude Code into a complete development partner with memory, research capabilities, and systematic workflow management.
+
+![Development Workflow](docs/development-workflow-diagram.svg)
+
+### 🎯 Two Powerful Workflows
+
+#### 1. Session Management (Daily Development)
+Perfect for regular development tasks with memory between sessions:
+
+```bash
+# Start session with automatic research
+/start implement user dashboard with analytics
+
+# Log progress as you work  
+/note added chart components with real-time data
+/note integrated with analytics API, added error handling
+
+# Check status anytime
+/status
+
+# End with comprehensive documentation
+/end
+```
+
+**Benefits:**
+- 🧠 **Memory between sessions** - Never lose context
+- 🔍 **Sub-agent research** - Automatic analysis and investigation  
+- 📝 **Problem tracking** - Document solutions to avoid repeating mistakes
+- 📊 **Progress documentation** - Complete timeline of development work
+
+#### 2. PRD Pipeline (Feature Development)
+Complete business-to-code pipeline for complex features:
+
+```bash
+# Step 1: Analyze business requirements
+/analyze-prd docs/prd-user-authentication.md
+
+# Step 2: Generate technical implementation plan  
+/generate-prp analysis/prd_analysis_20250706_auth.md
+
+# Step 3: Execute complete implementation
+/execute-prp PRPS/prp_20250706_auth_system.md
+```
+
+**Benefits:**
+- 🏢 **Business alignment** - Direct translation from PRD to code
+- 🔬 **Deep research** - Sub-agents investigate best practices and compatibility
+- 📋 **Systematic implementation** - Step-by-step execution with validation
+- 🧪 **Built-in testing** - Comprehensive testing and documentation
+
+### 🧠 Sub-agent Research System
+
+Every `/start` and `/analyze-prd` automatically deploys specialized AI agents:
+
+- **Current State Agent** - Analyzes project status, dependencies, git history
+- **Research Agent** - Investigates requirements, best practices, documentation  
+- **Compatibility Agent** - Assesses integration complexity and breaking changes
+
+### 📁 Enhanced Project Structure
+
+```
+your-project/
+├── .claude/
+│   ├── commands/           # Development workflow commands
+│   ├── sessions/          # Session tracking
+│   └── README.md          # Complete system documentation
+├── sessions/              # Session memory files
+├── analysis/              # PRD technical analysis
+├── PRPS/                 # Product Requirements Prompts
+├── docs/                 # Architecture documentation
+├── CLAUDE.md            # Complete AI context
+└── [your application code]
+```
+
+### 🚀 Getting Started with the Workflow
+
+1. **Use the enhanced initialization:**
+   ```bash
+   claude-init-full  # Sets up complete system
+   ```
+
+2. **Start your first session:**
+   ```bash
+   /help     # Learn all available commands
+   /start build user registration system
+   ```
+
+3. **For complex features, use PRD pipeline:**
+   ```bash
+   # Create business requirements in docs/prd-feature.md
+   /analyze-prd docs/prd-feature.md
+   /generate-prp analysis/prd_analysis_feature.md  
+   /execute-prp PRPS/prp_feature.md
+   ```
+
+### 📚 Learn More
+
+- See [`.claude/README.md`](.claude/README.md) for complete system documentation
+- Use `/help` within Claude Code for command reference
+- Review `sessions/` directory for examples of comprehensive session documentation
+
+---
 
 ## License
 

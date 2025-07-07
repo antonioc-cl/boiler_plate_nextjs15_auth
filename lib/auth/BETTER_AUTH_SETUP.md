@@ -41,7 +41,7 @@ This directory contains the Better Auth setup for the application, configured to
 
 4. **Database Integration**
    - Uses existing Drizzle schema
-   - PostgreSQL via Neon
+   - PostgreSQL (any provider)
    - UUID generation handled by database
 
 ## Environment Variables

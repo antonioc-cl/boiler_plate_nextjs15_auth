@@ -35,7 +35,7 @@
   "packageManager": "pnpm@10.12.1",
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
-    "@neondatabase/serverless": "^1.0.1",
+    "postgres": "^3.4.5",
     "@node-rs/argon2": "^2.0.2",
     "@plunk/node": "^3.0.3",
     "@radix-ui/react-label": "^2.1.7",

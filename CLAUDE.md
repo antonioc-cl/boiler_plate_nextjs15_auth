@@ -1,155 +1,146 @@
-# CLAUDE.md - Next.js 15 Auth Boilerplate
+# PROJECT_NAME - AI Development Context
 
-## General Rules
+## Project Overview
+Production-ready Next.js 15 boilerplate with authentication, testing, and modern tooling.
 
-- Always use `pnpm` as package manager
-- For complex tasks, break them down and use multiple subagents in parallel
-- All code must be TypeScript strict mode - avoid `any`
-- Use Server Actions for mutations, never direct API calls from client
-- Follow Conventional Commits standard (feat:, fix:, refactor:, etc.)
-- When searching for files/code, use multiple parallel searches to maximize efficiency
+## Tech Stack & Architecture
+- **Frontend**: Next.js 15 with App Router, TypeScript (strict mode)
+- **Authentication**: Better Auth (email/password, OAuth, 2FA)
+- **Styling**: TailwindCSS with custom theme and dark mode
+- **Database**: Drizzle ORM with PostgreSQL
+- **Email**: Plunk + React Email
+- **Testing**: Vitest (unit) + Playwright (E2E)
+- **Code Quality**: OXC linter + Prettier
+- **Deployment**: Vercel-optimized
 
-## Core Stack
+## Directory Structure & Patterns
+- `/app/` - Next.js App Router with route groups
+- `/(auth)/` - Authentication pages (sign-in, sign-up, etc.)
+- `/(protected)/` - Protected routes requiring auth
+- `/components/ui/` - Reusable UI components
+- `/lib/actions/` - Server actions
+- `/lib/db/` - Database config and schemas
+- `/lib/auth/` - Better Auth configuration
 
-- Next.js 15 (App Router)
-- TypeScript (strict mode)
-- Better Auth for authentication
-- Drizzle ORM + PostgreSQL (Neon)
-- Plunk for transactional emails
-- React Email for email templates
-- Vitest + React Testing Library
-- Playwright for E2E tests
-- OXC for fast linting (replaced ESLint)
+## Core Development Principles
 
-## Key Commands
+### 🚀 Maximum Parallelization Strategy
+**CRITICAL: Always deploy the maximum number of subagents in parallel when tackling complex tasks.**
 
-```bash
-pnpm dev          # Start development server
-pnpm build        # Build for production
-pnpm test         # Run all tests (Vitest)
-pnpm test:watch   # Run tests in watch mode
-pnpm test:coverage # Run tests with coverage
-pnpm e2e          # Run E2E tests (Playwright)
-pnpm lint         # Lint code with OXC (fast!)
-pnpm lint:fix     # Auto-fix linting issues
-pnpm format       # Format with Prettier
-pnpm type-check   # TypeScript check
-pnpm db:generate  # Generate Drizzle migrations
-pnpm db:migrate   # Run migrations
-pnpm db:push      # Push schema to database
-pnpm db:studio    # Open Drizzle Studio
-pnpm email:dev    # Preview email templates
-```
+- **For any analysis or research task**: Deploy 3-5+ specialized subagents simultaneously
+- **For implementation tasks**: Use parallel subagents for different aspects (frontend, backend, testing, documentation)
+- **For debugging**: Deploy multiple subagents to investigate different potential causes
+- **For optimization**: Use subagents in parallel for different optimization vectors (performance, security, UX)
 
-## Architecture Rules
+**Sub-agent Deployment Guidelines:**
+- **Simple tasks**: Minimum 2-3 subagents for different perspectives
+- **Complex tasks**: 5-8+ subagents for comprehensive coverage
+- **Critical features**: Maximum available subagents for thorough analysis
+- **Research phases**: Deploy subagents to investigate different approaches simultaneously
 
-1. **Server Actions** for all mutations (in `/lib/actions/`)
-2. **Route protection** via middleware.ts
-3. **Email rate limiting** implemented in `/lib/rate-limit.ts`
-4. **Type-safe routes** via TypeScript typed routes
-5. **Secure sessions** with httpOnly cookies
+### Sub-agent Specialization Areas
+When deploying multiple subagents, assign them specialized roles:
+1. **Current State Analyzer** - Project status and architecture
+2. **Research Specialist** - Best practices and documentation
+3. **Compatibility Checker** - Integration and breaking changes
+4. **Performance Analyst** - Optimization opportunities
+5. **Security Auditor** - Security implications and requirements
+6. **Testing Strategist** - Test coverage and quality assurance
+7. **Documentation Specialist** - Documentation and knowledge gaps
+8. **User Experience Researcher** - UX patterns and accessibility
+
+## Coding Standards
+- **Files**: kebab-case for pages, PascalCase for components
+- **Components**: Function declarations with proper TypeScript
+- **Imports**: Absolute imports using `@/` alias
+- **Server Actions**: In `/lib/actions/` with proper error handling
+- **Database**: Drizzle schema in `/lib/db/schema.ts`
+- **Styling**: Tailwind classes, custom CSS variables for theming
+
+## Key Implementation Details
+- **Auth Flow**: Better Auth handles sessions, middleware protects routes
+- **Database**: Drizzle with migrations, connection pooling configured
+- **Email**: React Email templates, Plunk for sending
+- **Security**: CSP headers, CSRF protection, input validation
+- **Performance**: Image optimization, bundle analysis ready
+
+## Development Workflow Optimization
+
+### Multi-Agent Research Protocol
+For every significant task:
+1. **Deploy maximum subagents** for comprehensive analysis
+2. **Assign specialized roles** to each subagent
+3. **Let subagents work in parallel** on different aspects
+4. **Synthesize findings** from all subagents before proceeding
+5. **Use parallel implementation** when possible
+
+### Parallel Development Strategy
+- **Frontend + Backend**: Develop simultaneously with different subagents
+- **Testing + Implementation**: Write tests in parallel with feature development
+- **Documentation + Code**: Document while implementing
+- **Research + Planning**: Investigate multiple approaches concurrently
+
+## Environment Setup
+Required variables in `.env`:
+- `DATABASE_URL` - PostgreSQL connection string
+- `BETTER_AUTH_SECRET` - Session secret
+- `PLUNK_API_KEY` - Email service
+- `NEXT_PUBLIC_APP_URL` - App URL
 
 ## Testing Strategy
+- **Unit**: Vitest for components and utilities
+- **Integration**: API route testing
+- **E2E**: Playwright for user flows
+- **Auth Testing**: Authentication flow coverage
 
-- Unit tests for utilities and server actions
-- Component tests for UI components
-- E2E tests for critical user flows (auth, protected routes)
-- Always write tests BEFORE implementation
+## Deployment Considerations
+- Vercel optimized with proper environment variables
+- Database migrations run automatically
+- Security headers configured
+- Performance monitoring ready (Lighthouse)
 
-## Authentication Flow
+## Multi-Agent Task Examples
 
-1. User signs up → Email verification sent via Better Auth
-2. User verifies email → Account activated, can access protected routes
-3. Password reset → Magic link sent via email
-4. Session management → Better Auth handles secure sessions with JWT
-5. OAuth support → Social login providers ready (Google, GitHub, etc.)
-6. Two-factor authentication → Optional 2FA via TOTP
+### Example 1: Implementing Authentication
+Deploy 6+ subagents:
+- **Agent 1**: Research Better Auth best practices
+- **Agent 2**: Analyze current auth integration points
+- **Agent 3**: Design database schema for user management
+- **Agent 4**: Plan frontend component architecture
+- **Agent 5**: Investigate security requirements and compliance
+- **Agent 6**: Design testing strategy for auth flows
 
-## Directory Structure
+### Example 2: Performance Optimization
+Deploy 5+ subagents:
+- **Agent 1**: Analyze bundle size and code splitting opportunities
+- **Agent 2**: Investigate database query optimization
+- **Agent 3**: Research image optimization and CDN strategies
+- **Agent 4**: Audit Core Web Vitals and performance metrics
+- **Agent 5**: Plan caching strategies (client and server)
 
-```
-/app/
-  /(auth)/          # Public auth pages
-  /(protected)/     # Protected pages (require auth)
-  /api/             # API routes
-/components/
-  /ui/              # shadcn/ui components
-  /auth/            # Auth-specific components
-/lib/
-  /actions/         # Server actions
-  /db/              # Database schema & config
-  /auth/            # Auth utilities
-  /email/           # Email templates & sending
-/emails/            # React Email templates
-```
+### Example 3: Feature Development
+Deploy 8+ subagents:
+- **Agent 1**: Analyze business requirements and user stories
+- **Agent 2**: Research technical implementation approaches
+- **Agent 3**: Design database schema and migrations
+- **Agent 4**: Plan API endpoints and server actions
+- **Agent 5**: Design frontend component architecture
+- **Agent 6**: Plan testing strategy (unit, integration, E2E)
+- **Agent 7**: Research accessibility and UX patterns
+- **Agent 8**: Plan documentation and knowledge transfer
 
-## Common Tasks
+## Common Patterns
+- Server components by default, client components when needed
+- Error boundaries for graceful error handling
+- Loading states with Suspense
+- Type-safe database queries with Drizzle
+- Responsive design with Tailwind breakpoints
 
-### Add a new protected page
+## Efficiency Maximization
+**Remember: The goal is to achieve maximum development velocity and quality through intelligent parallelization. Never use a single approach when multiple subagents can provide richer, faster, and more comprehensive results.**
 
-1. Create page in `/app/(protected)/new-page/page.tsx`
-2. Middleware automatically protects it
-
-### Add a new email template
-
-1. Create template in `/emails/new-email.tsx`
-2. Add sending function in `/lib/email/auth-emails.ts`
-3. Use rate limiter if needed
-
-### Add a new database table
-
-1. Define schema in `/lib/db/schema/`
-2. Run `pnpm db:generate` then `pnpm db:migrate`
-3. Export from `/lib/db/schema/index.ts`
-
-## Environment Variables
-
-See `.env.example` for required variables:
-
-- `DATABASE_URL` - PostgreSQL connection string
-- `PLUNK_API_KEY` - Email service key
-- `NEXT_PUBLIC_APP_URL` - Application URL
-
-## Important Files
-
-- `/middleware.ts` - Route protection logic using Better Auth
-- `/lib/auth/index.ts` - Better Auth server configuration
-- `/lib/auth/client.ts` - Better Auth client setup
-- `/lib/db/index.ts` - Database connection
-- `/lib/email/send-email.ts` - Email queue handler
-- `/app/api/auth/[...all]/route.ts` - Better Auth API handler
-
-## Migration Notes (from Lucia Auth)
-
-### Key Changes
-
-1. **Authentication Library**: Migrated from Lucia Auth v3 to Better Auth
-
-   - Better Auth provides more features out of the box (OAuth, 2FA, magic links)
-   - Simpler API with better TypeScript support
-   - Built-in session management with JWT
-
-2. **Linting**: Replaced ESLint with OXC
-
-   - Much faster linting (50-100x faster)
-   - Drop-in replacement with similar rules
-   - Same commands (pnpm lint, pnpm lint:fix)
-
-3. **Database Schema**: Updated auth tables
-   - New schema follows Better Auth conventions
-   - Run `pnpm db:migrate` to apply migrations
-   - Old Lucia tables can be dropped after migration
-
-### Breaking Changes
-
-- Auth hooks changed: `useAuth()` instead of `useSession()`
-- Server-side auth: `auth()` helper from Better Auth
-- Protected routes now use Better Auth middleware
-- Email verification flow updated to use Better Auth's built-in system
-
-### Migration Steps
-
-1. Update environment variables (see `.env.example`)
-2. Run database migration: `pnpm db:migrate`
-3. Update auth imports in your code
-4. Test auth flows thoroughly
+Always ask yourself:
+- "Can I deploy more subagents to analyze this from different angles?"
+- "What specialized perspectives am I missing?"
+- "How can I parallelize this work for faster completion?"
+- "What would a team of experts each focus on for this task?"

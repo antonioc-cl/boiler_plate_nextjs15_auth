@@ -1,59 +1,93 @@
-# Session Documentation & Cleanup
+# Finalize Development Session
 
-Please create a comprehensive session summary by:
+READ current session file from `.claude/sessions/.current-session`.
 
-ANALYZE:
+IF no active session:
+DISPLAY: "No active session to end. Use `/start [goal]` to begin a session."
+EXIT.
 
-- Session duration (estimate based on our conversation)
-- All git changes made during this session
-- Files created, modified, or deleted
-- Any commits made
+ANALYZE complete session work:
+- Calculate session duration from start time
+- Run `git log --oneline --since="[session start time]"` for commits
+- Run `git status` for current state
+- Identify all files modified during session
+- Check if session goal was achieved
 
-WRITE to `.claude/sessions/session_[generate timestamp].md`:
-
+APPEND comprehensive summary to session file:
 ```markdown
-# Session Summary - $(date)
+## Session Completion Summary
 
-## Session Metrics
+### Duration & Timing
+- Started: [from session file]
+- Ended: $(date +%H:%M)
+- Total Duration: [calculated duration]
 
-- Duration: [estimate]
-- Ended: $(date)
+### Goal Achievement
+**Original Goal**: [session goal]
+**Status**: [Completed/Partially Completed/Blocked]
+**Achievement Details**: [specific accomplishments toward goal]
 
-## Git Summary
+### Changes Made
+#### Files Modified
+[Git analysis of changed files with brief description of changes]
 
-### Files Changed
+#### Files Added
+[List new files created during session]
 
-[Run: git diff --name-status HEAD~1 or compare against session start]
+#### Files Deleted
+[List any files removed]
 
-### Current Status
+#### Key Code Changes
+[Summarize major modifications, new features, refactors]
 
-[Run: git status --porcelain]
+### Git Activity
+#### Commits Made This Session
+[Git log output with descriptions]
 
-### Commits This Session
+#### Current Repository State
+- Staged changes: [git status analysis]
+- Unstaged changes: [analysis]
+- Untracked files: [analysis]
 
-[Run: git log --oneline --since="[session start time]"]
+### Development Progress
+#### Tasks Completed
+[List major accomplishments from session]
 
-## Accomplishments
+#### Features Implemented
+[New functionality added]
 
-- [List key features implemented]
-- [Problems solved]
-- [Code written/refactored]
+#### Bugs Fixed
+[Issues resolved]
 
-## Changes Made
+### Problems Encountered & Solutions
+**[CRITICAL LEARNING SECTION]**
+[Document specific errors, compatibility issues, dependency conflicts]
+[Include exact error messages and step-by-step solutions]
+[Note any gotchas or unexpected behaviors discovered]
 
-- [Dependencies added/removed]
-- [Configuration changes]
-- [New files created]
+### Technical Learnings
+[Important insights about the codebase, framework, or tools]
+[Best practices discovered or confirmed]
+[Architecture decisions made and reasoning]
 
-## Current State
+### Next Session Recommendations
+#### Immediate Next Steps
+[What should be tackled in the next session]
 
-- [What's working]
-- [What's incomplete]
-- [Next priorities]
+#### Potential Issues to Watch
+[Known problems or areas that need careful attention]
 
-## Notes for Next Session
+#### Suggested Goal for Next Session
+[Logical next objective based on current progress]
 
-- [Important context to remember]
-- [Potential issues to watch]
-- [Suggested next steps]
+### Project State Assessment
+- **Build Status**: [Does project build successfully?]
+- **Test Status**: [Do tests pass?]
+- **Development Ready**: [Ready for local development?]
+- **Production Ready**: [Ready for deployment?]
+- **Blockers**: [Any issues preventing progress?]
 ```
+
+CLEAR `.claude/sessions/.current-session` file.
+
+PROVIDE session completion confirmation with key achievements.

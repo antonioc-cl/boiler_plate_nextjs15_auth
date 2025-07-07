@@ -1,66 +1,53 @@
 version: 2
 updates:
-  # Enable version updates for npm/pnpm dependencies
-  - package-ecosystem: 'npm'
-    directory: '/'
+  # npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'UTC'
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
     open-pull-requests-limit: 10
-    reviewers:
-      - 'antonioc-cl'
     labels:
-      - 'dependencies'
-      - 'automated'
+      - "dependencies"
+      - "automated"
+    assignees:
+      - "antonioc-cl"
     groups:
-      # Group all development dependencies together
-      dev-dependencies:
-        patterns:
-          - '@types/*'
-          - 'eslint*'
-          - 'prettier*'
-          - '@testing-library/*'
-          - 'vitest*'
-          - '@vitest/*'
-        dependency-type: 'development'
-      # Group all production dependencies together
       production-dependencies:
-        dependency-type: 'production'
-        exclude-patterns:
-          - '@radix-ui/*'
-      # Group Radix UI updates together
-      radix-ui:
-        patterns:
-          - '@radix-ui/*'
-    # Ignore specific dependencies
-    ignore:
-      # Example: Ignore major updates for React
-      # - dependency-name: "react"
-      #   update-types: ["version-update:semver-major"]
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      major-updates:
+        update-types:
+          - "major"
     commit-message:
-      prefix: 'chore'
-      prefix-development: 'chore'
-      include: 'scope'
-    milestone: 1
-    # Automatically merge minor and patch updates for dev dependencies
-    versioning-strategy: increase
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "scope"
+    pull-request-branch-name:
+      separator: "-"
 
-  # Enable security updates for GitHub Actions
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'weekly'
-      day: 'monday'
-      time: '09:00'
-      timezone: 'UTC'
-    open-pull-requests-limit: 5
-    reviewers:
-      - 'antonioc-cl'
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
     labels:
-      - 'github-actions'
-      - 'automated'
+      - "dependencies"
+      - "github-actions"
+    assignees:
+      - "antonioc-cl"
     commit-message:
-      prefix: 'ci'
-      include: 'scope'
+      prefix: "ci"
+      include: "scope"
